@@ -1,12 +1,12 @@
 ---
 layout: default
-title: 18.4.1. Stateful Client Persistence
+title: 18.4.1. Persistence of Stateful Clients
 parent: 18.4. Client Persistence
 grand_parent: 18. Application Events
 nav_order: 1
 ---
 
-## 18.4.1. Stateful Client Persistence
+## 18.4.1. Persistence of Stateful Clients
 
 Softnet stores on the server the event subscriptions of a stateful client, along with the ID of the last event delivered to the endpoint for each subscription. When a client connects to the site, the platform creates a client agent on the broker and initializes it with the subscription data stored on the server. After synchronizing with the client, the agent checks each authorized subscription for the next event in the queue after the last one delivered. If such an event exists, it sends it and waits for an acknowledgment. The agent sends the next event only after receiving an acknowledgment for the last event sent. Of course, the agent repeats the event message if an acknowledgement was not received within the timeout. On the endpoint side, this model requires a persistence mechanism to store the ID of the last event received for each subscription. This allows the endpoint to recognize and acknowledge duplicate events received from the broker, without calling the application's event handler again. This protects client from handling the same event multiple times.  
 
