@@ -15,7 +15,7 @@
 # in the templates via {{ site.myvariable }}.
 title: Softnet (Java)
 description: Softnet Programming Model (Java)
-baseurl: "/" # the subpath of your site, e.g. /blog
+baseurl: "/softnet-java" # the subpath of your site, e.g. /blog
 url: "https://softnet-free.github.io/softnet-java" # the base hostname & protocol for your site, e.g. http://example.com
 repository: Softnet-Free/softnet-java # for github-metadata
 
