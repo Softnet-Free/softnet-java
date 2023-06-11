@@ -45,7 +45,7 @@ The third method is a findUser overload to look up a user by name:
 public MembershipUser findUser(String userName)
 ```
 
-If Guest or Stateless Guest users are declared as supported in the site structure, then the User Membership module contains the corresponding users of type <span class="datatype">MembershipUser</span>. Explicit access to them does not make any practical sense. Therefore, the methods described above do not return them. However, the request context, which is the first parameter of any request handler, can contain a guest user in the user field.  
+If Guest or Stateless Guest users are declared as supported in the site structure, then the User Membership module contains the corresponding users of type <span class="datatype">MembershipUser</span>. Explicit access to them does not make any practical sense. Therefore, the methods described above do not return them. However, the request context, which is the first parameter of any request handler, can contain a guest user in the <span class="field">user</span> field.  
 
 A service application can check if Guest is allowed by calling the following method of <span class="datatype">ServiceEndpoint</span> class:
 ```java
