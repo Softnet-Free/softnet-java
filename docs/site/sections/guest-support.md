@@ -11,7 +11,7 @@ Some service applications may support guest access. It is convenient for users a
 ```java
 siteStructure.setGuestSupport();
 ```
-Possibly, your service does not necessarily require for guest clients to be able to receive Private events. If so, you are advised to declare the support for stateless guests. This is convenient for users as it does not require the creation of an account for each guest client. Stateless clients connect to the site using a shared guest URI. Users can find it on the site management page in Softnet MS. You declare the support for stateless guests by the following call:
+Possibly, your service does not necessarily require for guest clients to be able to receive Private events. If so, you are advised to declare the support for stateless guests. This is convenient for users as it does not require the creation of an account for each guest client. Stateless clients connect to the site using a guest shared URI. Users can find it on the site management page in Softnet MS. You declare the support for stateless guests by the following call:
 ```java
 siteStructure.setStatelessGuestSupport();
 ```

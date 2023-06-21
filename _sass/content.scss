@@ -8,43 +8,56 @@
   margin-bottom: 10pt;
   @include fs-5; 
 }
+
 .datatype {
 color:rgb(172, 100, 0);  
 }
+
 .method {
   color:rgb(0, 132, 116);  
 }
+
 .field {
   color: rgb(32, 116, 164);  
 }
+
 .enum {
   color: rgb(96, 54, 28);  
 }
+
 .param {
   font-style: italic;
   color: $param-color;
 }
+
 .exception {
   color:rgb(138, 0, 0);  
 }
+
 .text-error {
   color:rgb(204, 0, 0);  
 }
+
 .text-orange {
   color:rgb(224, 96, 0);
 }
+
 .text-brown {
   color:rgb(150, 75, 0);
 }
+
 .text-black {
   color: black;
 }
+
 .text-blue {
   color:rgb(0, 0, 224);
 }
+
 .text-highlighted {
   background-color:rgb(255, 255, 0);
 }
+
 .text-monospace {
   font-family: monospace;
   font-style: normal;
