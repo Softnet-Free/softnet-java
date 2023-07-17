@@ -1,11 +1,11 @@
 ---
 layout: default
-title: 10.1. The User Membership API
-parent: 10. User Membership
+title: 9.1. The User Membership API
+parent: 9. User Membership
 nav_order: 1
 ---
 
-## 10.1. The User Membership API
+## 9.1. The User Membership API
 
 The User Membership supported by the service endpoint contains a list of <span class="datatype">MembershipUser</span> objects. Each object represents a domain user and its permissions to access the service. Let’s take a look at the <span class="datatype">MembershipUser</span> interface members:
 ```java

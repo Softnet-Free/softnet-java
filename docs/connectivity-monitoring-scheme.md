@@ -1,10 +1,10 @@
 ---
 layout: default
-title: 14. Connectivity monitoring scheme
-nav_order: 14
+title: 13. Connectivity monitoring scheme
+nav_order: 13
 ---
 
-## 14. Connectivity monitoring scheme
+## 13. Connectivity monitoring scheme
 
 When an endpoint connects to the Softnet server, it establishes a control channel with the site. The channel is built on TCP. As is known, a TCP connection has fixed source IP:Port and destination IP:Port. However, if the source or destination host changes the IP address, the TCP connection becomes broken. Often, the underlying host platform does not notify applications that the host has changed its IP, and idle TCP connections can remain unaware that they are broken for quite a long time. And if the socket sends a message in such a situation, different TCP implementations may behave differently. One implementation can detect the error right away. Another might send a message with a stale source IP address and wait for an acknowledgment for the time defined as TCP Timeout, and then drop the connection as broken. By default, TCP Timeout is often 60 seconds. The third implementation can even discard the message without any error. Nowadays, there are a dozen TCP/IP implementations for industrial microcontrollers. Now imagine that a mobile unmanned vehicle, controlled remotely via such a connection, changes its IP address. As a result, the operator may lose the control of the vehicle for an unacceptable time.  
 

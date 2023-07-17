@@ -1,11 +1,11 @@
 ---
 layout: default
-title: 7.1. Defining the minimal site structure
-parent: 7. Site and Site Structure
+title: 6.1. Defining the minimal site structure
+parent: 6. Site and Site Structure
 nav_order: 1
 ---
 
-## 7.1. Defining the minimal site structure
+## 6.1. Defining the minimal site structure
 
 The development of a service application begins with defining the site structure. You define it programmatically in the <span class="datatype">SiteStructure</span> object, then bind it to the service endpoint. The site structure requires at least two parameters – the name of **Service Type** and the name of **Contract Author**. Here, the service type is a named representation of the service interface contract. It serves as an identifier to refer to the specific functionality and behavior defined by the service interface contract. An interface contract can be implemented by one or more APIs. For example, RESTful, SOAP, or both. However, to make the device management as simple as possible, Softnet assumes that the variety of APIs that implement a specific interface is fixed and determined by the service type, or at least the service version.  
 

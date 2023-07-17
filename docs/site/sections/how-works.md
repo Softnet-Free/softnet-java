@@ -1,11 +1,11 @@
 ---
 layout: default
-title: 7.5. How it works
-parent: 7. Site and Site Structure
+title: 6.5. How it works
+parent: 6. Site and Site Structure
 nav_order: 5
 ---
 
-## 7.5. How it works
+## 6.5. How it works
 
 Let's see what happens when a service connects to the site. If the site is not constructed yet (blank site with status &lt;<span class="text-error">site not constructed</span>&gt;), it will be constructed in accordance with data in the SiteStructure object attached to the endpoint. Then, the service goes online. However, if the site has already been constructed, Softnet compares the attached structure with one from which the site has been constructed (in truth, Softnet compares hashes from those structures). As a result, there are three possible outcomes:
 1.	The two structures are equal –> the service goes online and becomes available for clients to consume; 

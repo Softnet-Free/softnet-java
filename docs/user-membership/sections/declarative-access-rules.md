@@ -1,11 +1,11 @@
 ---
 layout: default
-title: 10.2. Declarative definition of access rules
-parent: 10. User Membership
+title: 9.2. Declarative definition of access rules
+parent: 9. User Membership
 nav_order: 2
 ---
 
-## 10.2. Declarative definition of access rules
+## 9.2. Declarative definition of access rules
 
 Softnet uses a unified technique for defining access rules declaratively. [Chapter 15]({{ site.baseurl }}{% link docs/access-rules.md %}) gives a detailed description on this topic. Each of the Softnet native request handling methods is implemented in three overloads that differ in the way of defining access rules. The first overload applies no access restrictions to clients. The second overload applies restrictions only to guest clients. And the third overload is applicable if your service employs the role-based access control provided by Softnet. This method applies an access rule that allows access only to clients that have at least one of the roles specified in the access rule definition.  
 

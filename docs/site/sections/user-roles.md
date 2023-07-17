@@ -1,11 +1,11 @@
 ---
 layout: default
-title: 7.3. Defining user roles
-parent: 7. Site and Site Structure
+title: 6.3. Defining user roles
+parent: 6. Site and Site Structure
 nav_order: 3
 ---
 
-## 7.3. Defining user roles
+## 6.3. Defining user roles
 
 A service application in Softnet can employ one of the two access control schemes – plain access control (PAC) or role-based access control (RBAC). If your service employs plain access control, you don’t have to do anything with the site structure. Domain users will have a full access to your service by the fact of being added to the site. If your service employs RBAC, you have to define the list of roles in the site structure. Later on, when the service connects to a blank site and the structure is applied to the site, the roles will be presented to the service owner so that he/she will be able to distribute them among domain users.
 The roles you have specified can be used in the app code when defining access rules for service events, RPC procedures, and TCP and UDP virtual port listeners. 

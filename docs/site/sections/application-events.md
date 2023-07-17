@@ -1,11 +1,11 @@
 ---
 layout: default
-title: 7.4. Defining application events
-parent: 7. Site and Site Structure
+title: 6.4. Defining application events
+parent: 6. Site and Site Structure
 nav_order: 4
 ---
 
-## 7.4. Defining application events
+## 6.4. Defining application events
 
 IoT applications often employ some kind of inter-device eventing model. Softnet offers a Pub/Sub eventing model where publishers are services and subscribers are clients, all registered on the same site. Each event has a category, name and other parameters and must be declared in the site structure. Softnet uses this information to configure the event broker hosted on the site. Softnet supports three categories of events – Replacing, Queueing, and Private.  
 

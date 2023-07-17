@@ -1,10 +1,10 @@
 ---
 layout: default
-title: 11. Service Group
-nav_order: 11
+title: 10. Service Group
+nav_order: 10
 ---
 
-## 11. Service Group
+## 10. Service Group
 
 This chapter describes the functionality called Service Status Detection, which is one of the basic features offered by Softnet.  
 
@@ -41,7 +41,7 @@ public void tcpConnect(
     TCPResponseHandler responseHandler,
     Object attachment)
 ```
-Both methods have a <span class="datatype">RemoteService</span> object as the first parameter. Note that at the moment of making the request, the service is supposed to be online. The method <span class="datatype">RemoteService</span>.<span class="method">isOnline</span> allows the app to check this status in advance. The checking is not required, if a client makes a request on receiving a <span class="datatype">ServiceOnline</span> event from the platform. [Section 13.1]({{ site.baseurl }}{% link docs/client-platform-events/sections/interface-client-event-listener.md %}) gives more details on this question.  
+Both methods have a <span class="datatype">RemoteService</span> object as the first parameter. Note that at the moment of making the request, the service is supposed to be online. The method <span class="datatype">RemoteService</span>.<span class="method">isOnline</span> allows the app to check this status in advance. The checking is not required, if a client makes a request on receiving a <span class="datatype">ServiceOnline</span> event from the platform. [Section 13.1]({{ site.baseurl }}{% link docs/client-platform-events/interface-client-event-listener.md %}) gives more details on this question.  
 
 A single-service group contains only one object of the type <span class="datatype">RemoteService</span>, while a multi-service group contains multiple objects – one for each remote service. This is where <span class="datatype">ClientEndpoint</span> and <span class="datatype">ClientSEndpoint</span> differ from each other. Let’s see those differences. The following is a view of the <span class="datatype">ClientEndpoint</span> class that shows signatures of the methods for accessing elements of a multi-service group:
 ```java

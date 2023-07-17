@@ -1,10 +1,10 @@
 ---
 layout: default
-title: 15. Access rules definition technique
-nav_order: 15
+title: 14. Access rules definition technique
+nav_order: 14
 ---
 
-## 15. Access rules definition technique
+## 14. Access rules definition technique
 
 Let's remember that a Softnet domain contains two built-in users – Owner and Guest. The administrator can also create Private users and Contact users. Owner is associated with the project owner. Guest is a generalized user that represents all anonymous clients. Guest clients can be stateful or stateless. The latter connect to the site without authentication using a shared guest URI. The users membership of the service consists of domain users added to the site by assigning them access rights. When the service connects to the site, Softnet loads the users membership into the service application. Every client on the site is associated with a particular user from the users membership and inherits its access rights. With each request, Softnet provides the service with a membership user object corresponding to the client from which the request is received. This object contains the name of the user as well as its roles if the application employs role-based access control (RBAC).  
 

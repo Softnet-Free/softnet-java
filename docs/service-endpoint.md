@@ -1,10 +1,10 @@
 ---
 layout: default
-title: 8. Service Endpoint
-nav_order: 8
+title: 7. Service Endpoint
+nav_order: 7
 ---
 
-## 8. Service Endpoint
+## 7. Service Endpoint
 
 After you have defined the site structure, you can move on to designing the service endpoint. This is a gateway through which the service application communicates with clients. The service endpoint is implemented by the <span class="datatype">ServiceEndpoint</span> class. It has a static method to create an instance. Let's look at the signature of the method and see how it works:
 ```java
