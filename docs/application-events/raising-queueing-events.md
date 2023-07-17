@@ -7,7 +7,7 @@ nav_order: 9
 
 ## 17.9. Raising Queueing events
 
-According to the name, each new Queueing event joins the queue of previously received instances. This continues until the queue is full. Then each new event pushes the oldest one out of the queue. The event is also removed from the queue at the end of the lifetime. Event parameters are defined in the site structure. These are the event name, lifetime, maximum queue size, and access rule. See [section 7.4]({{ site.baseurl }}{% link docs/site/sections/application-events.md %}) for details. Queuing events are used when clients need all raised events.  
+According to the name, each new Queueing event joins the queue of previously received instances. This continues until the queue is full. Then each new event pushes the oldest one out of the queue. The event is also removed from the queue at the end of the lifetime. Event parameters are defined in the site structure. These are the event name, lifetime, maximum queue size, and access rule. See [section 7.4]({{ site.baseurl }}{% link docs/site/application-events.md %}) for details. Queuing events are used when clients need all raised events.  
 
 There are no clear similarities between Softnet queuing events and MQTT topics. This is because MQTT topics cannot contain more than one message at a time. However, if a subscriber needs to receive all messages published on the MQTT topic while it is offline, the subscriber can create a stateful subscription.  
 
