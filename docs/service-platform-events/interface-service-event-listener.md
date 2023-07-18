@@ -1,5 +1,5 @@
 ---
-layout: default
+layout: default_no_content
 title: 11.1. Interface ServiceEventListener
 parent: 11. Platform events related to services
 nav_order: 1
@@ -41,5 +41,15 @@ The following 5 methods intercept the User Membership events that can be trigger
 
 The <span class="method">onHostnameChanged</span> event handler is invoked when the service hostname is changed by the owner on the site management panel.  
 
-And the last handler, <span class="method">onPersistenceFailed</span>, intercepts error notifications raised by the service persistence component. The detailed guidance on service persistence is given in chapter "[18. Application Events]({{ site.baseurl }}{% link docs/application-events/index.md %})".
+And the last handler, <span class="method">onPersistenceFailed</span>, intercepts error notifications raised by the service persistence component. The detailed guidance on service persistence is given in the chapter "[Application Events]({{ site.baseurl }}{% link docs/application-events/index.md %})".
 
+---
+#### TABLE OF CONTENTS
+* 11.1. Interface ServiceEventListener
+* [11.2. Implementing event handlers]({{ site.baseurl }}{% link docs/service-platform-events/implementing-event-handlers.md %})
+	* [11.2.1. Connectivity status event handler]({{ site.baseurl }}{% link docs/service-platform-events/impl/connectivity-status-event-handler.md %})
+	* [11.2.2. Service status event handler]({{ site.baseurl }}{% link docs/service-platform-events/impl/service-status-event-handler.md %})
+	* [11.2.3. Hostname change event handler]({{ site.baseurl }}{% link docs/service-platform-events/impl/hostname-change-event-handler.md %})
+	* [11.2.4. User Membership event handlers]({{ site.baseurl }}{% link docs/service-platform-events/impl/user-membership-event-handlers.md %})
+	* [11.2.5. Persistence event handler]({{ site.baseurl }}{% link docs/service-platform-events/impl/persistence-event-handler.md %})
+* [11.3. Adapter class ServiceEventAdapter]({{ site.baseurl }}{% link docs/service-platform-events/class-service-event-adapter.md %})

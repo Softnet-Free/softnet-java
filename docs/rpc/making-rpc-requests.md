@@ -7,7 +7,7 @@ nav_order: 2
 
 ## 16.2. Making RPC requests
 
-This section describes the technique of making RPC requests. Again, before making a request, it is desirable to check whether the remote service is online. See section "[13.1 Interface ClientEventListener]({{ site.baseurl }}{% link docs/client-platform-events/interface-client-event-listener.md %})" for details.  
+This section describes the technique of making RPC requests. Again, before making a request, it is desirable to check whether the remote service is online. See the section "[Interface ClientEventListener]({{ site.baseurl }}{% link docs/client-platform-events/interface-client-event-listener.md %})" for details.  
 
 There are three overloaded methods to make an RPC call:  
 
@@ -193,3 +193,8 @@ static void makeTransponseMatrixCall(ClientEndpoint clientEndpoint, RemoteServic
     }, attachment);
 }
 ```
+
+---
+#### TABLE OF CONTENTS
+* [16.1. Handling RPC requests]({{ site.baseurl }}{% link docs/rpc/handling-rpc-requests.md %})
+* 16.2. Making RPC requests

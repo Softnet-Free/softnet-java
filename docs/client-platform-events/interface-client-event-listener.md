@@ -46,3 +46,14 @@ The next 6 handlers are designed to intercept events raised by Service Group as 
 The <span class="method">onUserUpdated</span> handler is called whenever the properties of a domain user that this client is associated with or its permissions to access the service change. You can use the information about the user’s permissions to make only those requests that are currently allowed to the user.  
 
 The last handler, <span class="method">onPersistenceFailed</span>, is similar to that of the service’s one. It intercepts error notifications raised by the client persistence component.
+
+---
+#### TABLE OF CONTENTS
+* 12.1. Interface ClientEventListener
+* [12.2. Implementing event handlers]({{ site.baseurl }}{% link docs/client-platform-events/implementing-event-handlers.md %})
+    * [12.2.1. Connectivity status event handler]({{ site.baseurl }}{% link docs/client-platform-events/impl/connectivity-status-event-handler.md %})
+    * [12.2.2. Client status event handler]({{ site.baseurl }}{% link docs/client-platform-events/impl/client-status-event-handler.md %})
+    * [12.2.3. User properties change event handler]({{ site.baseurl }}{% link docs/client-platform-events/impl/user-properties-change-event-handler.md %})
+    * [12.2.4. Service Group event handlers]({{ site.baseurl }}{% link docs/client-platform-events/impl/service-group-event-handlers.md %})
+    * [12.2.5. Persistence event handler]({{ site.baseurl }}{% link docs/client-platform-events/impl/persistence-event-handler.md %})
+* [12.3. Adapter class ClientEventAdapter]({{ site.baseurl }}{% link docs/client-platform-events/class-client-event-adapter.md %})

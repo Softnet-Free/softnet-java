@@ -7,7 +7,7 @@ nav_order: 2
 
 ## 15.2. Making TCP connection requests
 
-This section describes the technique of making TCP connection requests. The client sends a request to the virtual port on which the remote service is listening. Before making a request, it is desirable to check whether the remote service is online – for this, the <span class="datatype">RemoteService</span> has a method <span class="method">isOnline</span>. This is not required if your application sends a request at receiving the service online event for the target service (see section "[13.1. Interface ClientEventListener]({{ site.baseurl }}{% link docs/client-platform-events/interface-client-event-listener.md %})").  
+This section describes the technique of making TCP connection requests. The client sends a request to the virtual port on which the remote service is listening. Before making a request, it is desirable to check whether the remote service is online – for this, the <span class="datatype">RemoteService</span> has a method <span class="method">isOnline</span>. This is not required if your application sends a request at receiving the service online event for the target service (see the section "[Interface ClientEventListener]({{ site.baseurl }}{% link docs/client-platform-events/interface-client-event-listener.md %})").  
 
 Let's see the method for making connection requests:
 ```java
@@ -90,3 +90,10 @@ class MyTCPResponseHandler implements TCPResponseHandler {
     }
 }
 ```
+
+---
+#### TABLE OF CONTENTS
+* [15.1. Handling TCP connection requests]({{ site.baseurl }}{% link docs/tcp-udp/handling-tcp-connection-requests.md %})
+* 15.2. Making TCP connection requests
+* [15.3. Handling UDP connection requests]({{ site.baseurl }}{% link docs/tcp-udp/handling-udp-connection-requests.md %})
+* [15.4. Making UDP connection requests]({{ site.baseurl }}{% link docs/tcp-udp/making-udp-connection-requests.md %})

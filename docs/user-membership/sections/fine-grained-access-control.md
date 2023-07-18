@@ -24,3 +24,9 @@ serviceEndpoint.tcpAccept(10, new TCPRequestHandler() {
     }
 });
 ```
+
+---
+#### TABLE OF CONTENTS
+* [9.1. The User Membership API]({{ site.baseurl }}{% link docs/user-membership/sections/api.md %})
+* [9.2. Declarative definition of access rules]({{ site.baseurl }}{% link docs/user-membership/sections/declarative-access-rules.md %})
+* 9.3. Fine-grained access control

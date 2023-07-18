@@ -13,7 +13,7 @@ Replacing events are convenient for representing changes in the parameters of an
 
 It is possible that a Replacing event is used to notify clients when a given state parameter takes values outside the range of nominal values. Then the question arises, if the parameter has returned to normal, how to notify clients about it. That is, how to notify clients about absence of the event. For this purpose, Softnet introduced a Replacing null-event which has the same name as the event and replaces it in the queue. Upon receiving a null-event, subscribed clients know that the event itself is no longer relevant, i.e., the value of the state parameter is now in the nominal range, no matter what that value is.  
 
-Let’s remember that a Replacing event must first be defined in the site structure. See [section 7.4]({{ site.baseurl }}{% link docs/site/application-events.md %}) for details. The <span class="datatype">SiteStructure</span> implementation has the following method for this:
+Let’s remember that a Replacing event must first be defined in the site structure. See the section "[Defining application events]({{ site.baseurl }}{% link docs/site/application-events.md %})" for details. The <span class="datatype">SiteStructure</span> implementation has the following method for this:
 ```java
 void addReplacingEvent(String eventName)
 ```
@@ -66,3 +66,18 @@ ReplacingEvent event = new ReplacingEvent("WaterTemperature");
 event.arguments.Int32(70);
 serviceEndpoint.raiseEvent(event);
 ```
+
+---
+#### TABLE OF CONTENTS
+* [17.1. Basic features]({{ site.baseurl }}{% link docs/application-events/basic-features.md %})
+* [17.2. Event Persistence]({{ site.baseurl }}{% link docs/application-events/event-persistence.md %})
+* [17.3. Service Persistence]({{ site.baseurl }}{% link docs/application-events/service-persistence.md %})
+* [17.4. Client Persistence]({{ site.baseurl }}{% link docs/application-events/client-persistence/index.md %})
+* [17.5. Setting up the service persistence]({{ site.baseurl }}{% link docs/application-events/setting-service-persistence.md %})
+* [17.6. Setting up the client persistence]({{ site.baseurl }}{% link docs/application-events/setting-client-persistence.md %})
+* 17.7. Raising Replacing events
+* [17.8. Handling Replacing events]({{ site.baseurl }}{% link docs/application-events/handling-replacing-events.md %})
+* [17.9. Raising Queueing events]({{ site.baseurl }}{% link docs/application-events/raising-queueing-events.md %})
+* [17.10. Handling Queueing events]({{ site.baseurl }}{% link docs/application-events/handling-queueing-events.md %})
+* [17.11. Raising Private events]({{ site.baseurl }}{% link docs/application-events/raising-private-events.md %})
+* [17.12. Handling Private events]({{ site.baseurl }}{% link docs/application-events/handling-private-events.md %})

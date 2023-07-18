@@ -16,3 +16,11 @@ Possibly, your service does not necessarily require for guest clients to be able
 siteStructure.setStatelessGuestSupport();
 ```
 Please note that this call must be <u>preceded by setGuestSupport</u>.
+
+---
+#### TABLE OF CONTENTS
+* [6.1. Defining the minimal site structure]({{ site.baseurl }}{% link docs/site/minimal-structure.md %})
+* 6.2. Defining the guest support
+* [6.3. Defining user roles]({{ site.baseurl }}{% link docs/site/user-roles.md %})
+* [6.4. Defining application events]({{ site.baseurl }}{% link docs/site/application-events.md %})
+* [6.5. How it works]({{ site.baseurl }}{% link docs/site/how-works.md %})

@@ -18,3 +18,11 @@ The method expects the string of role names delimited with semicolons. The names
 siteStructure.setRoles("Administrator; Editor; Operator; User");
 siteStructure.setOwnerRole("Administrator");
 ```
+
+---
+#### TABLE OF CONTENTS
+* [6.1. Defining the minimal site structure]({{ site.baseurl }}{% link docs/site/minimal-structure.md %})
+* [6.2. Defining the guest support]({{ site.baseurl }}{% link docs/site/guest-support.md %})
+* 6.3. Defining user roles
+* [6.4. Defining application events]({{ site.baseurl }}{% link docs/site/application-events.md %})
+* [6.5. How it works]({{ site.baseurl }}{% link docs/site/how-works.md %})
