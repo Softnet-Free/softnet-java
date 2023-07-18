@@ -53,10 +53,10 @@ The name of each method describes the method itself, so the method descriptions 
 
 **Use case 1**. Prints the period in seconds specified as 2 hours and 30 minutes:
 ```java
-System.out.println(TimeSpan.fromHMS(2,30,0).seconds);
+System.out.println(TimeSpan.fromHMS(2,30,0));
 ```
 
 **Use case 2**. Prints the period in seconds specified as 2 days:
 ```java
-System.out.println(TimeSpan.fromDays(2).seconds);
+System.out.println(TimeSpan.fromDays(2));
 ```
