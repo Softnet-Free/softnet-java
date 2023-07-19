@@ -7,7 +7,7 @@ nav_order: 11
 
 ## 17.11. Raising Private events
 
-At times, a service may not be able to immediately respond to a client request and may take an indefinite period of time to do so. Since the client request cannot last longer than a short timeout interval, the service can complete the request-response session by informing the client that it will be notified when the result is ready. And when the result is ready, the service can then send a Private event to the client, either notifying it that the result is ready or that the interaction can continue.  
+At times, a service may not be able to immediately respond to a client request and may take an indefinite period of time to do so. Since the client request cannot last longer than a short timeout interval, the service can complete the request-response session by informing the client that it will be notified when the result is ready. And when the result is ready, the service can then send a Private event to the client, either delivering the result or notifying that the interaction can continue.  
 
 Comparing Softnet Private events with MQTT topics, you can hardly find similarities because MQTT follows a loose coupling model and does not support messages addressed to specific subscribers.  
 

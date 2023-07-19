@@ -9,11 +9,11 @@ nav_order: 7
 
 Replacing events are so called because each new event of this kind received by the broker replaces the old one in the queue, if any. Thus, the queue of Replacing event can contain only one the most recent instance. Those clients that haven’t yet received the previous event will no longer be able to receive it, but only the last one. An event can remain in the queue for an arbitrarily long time until it is replaced by a new event. Those familiar with MQTT may notice that Replacing events are similar to MQTT retained messages.  
 
-Replacing events are convenient for representing changes in the parameters of an electro-mechanical object over time. For example, such parameters can be the readings of temperature, humidity, pressure, etc. The service can generate a Replacing event whenever some reading reaches a certain value or changes by a certain delta.  
+Replacing events are convenient for representing changes in the state parameters of an electro-mechanical object over time. For example, such parameters can be the readings of temperature, humidity, pressure, etc. The service can generate a Replacing event whenever some reading reaches a certain value or changes by a certain delta.  
 
 It is possible that a Replacing event is used to notify clients when a given state parameter takes values outside the range of nominal values. Then the question arises, if the parameter has returned to normal, how to notify clients about it. That is, how to notify clients about absence of the event. For this purpose, Softnet introduced a Replacing null-event which has the same name as the event and replaces it in the queue. Upon receiving a null-event, subscribed clients know that the event itself is no longer relevant, i.e., the value of the state parameter is now in the nominal range, no matter what that value is.  
 
-Let’s remember that a Replacing event must first be defined in the site structure. See the section "[Defining application events]({{ site.baseurl }}{% link docs/site/application-events.md %})" for details. The <span class="datatype">SiteStructure</span> implementation has the following method for this:
+Let’s remember that a Replacing event must first be defined in the Site Structure. See the section "[Defining application events]({{ site.baseurl }}{% link docs/site/application-events.md %})" for details. The <span class="datatype">SiteStructure</span> implementation has the following method for this:
 ```java
 void addReplacingEvent(String eventName)
 ```

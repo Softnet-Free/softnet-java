@@ -27,7 +27,7 @@ The storage file will be created in the directory where the Softnet library file
 softnet.service.persistence_<serviceUuid>.ssp
 ```
 
-The platform takes the value of <serviceUuid> from the service URI provided to the endpoint, which has the following form:
+The platform takes the value of &lt;serviceUuid&gt; from the service URI provided to the endpoint, which has the following format:
 ```
 softnet-srv://<serviceUuid>@<serverAddress>
 ```
