@@ -21,7 +21,7 @@ If a stateless client uses CPL-2 then it is an ideal case where each event is re
 ---
 #### TABLE OF CONTENTS
 * [17.1. Basic features]({{ site.baseurl }}{% link docs/application-events/basic-features.md %})
-* [17.2. Event Persistence]({{ site.baseurl }}{% link docs/application-events/event-persistence.md %})
+* [17.2. Event delivery model]({{ site.baseurl }}{% link docs/application-events/delivery-model.md %})
 * [17.3. Service Persistence]({{ site.baseurl }}{% link docs/application-events/service-persistence.md %})
 * [17.4. Client Persistence]({{ site.baseurl }}{% link docs/application-events/client-persistence/index.md %})
     * [17.4.1. Persistence of Stateful Clients]({{ site.baseurl }}{% link docs/application-events/client-persistence/categories/stateful-client-persistence.md %})

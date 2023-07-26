@@ -14,7 +14,7 @@ The level of persistence directly affects the quality of event delivery. Ideally
 ---
 #### TABLE OF CONTENTS
 * [17.1. Basic features]({{ site.baseurl }}{% link docs/application-events/basic-features.md %})
-* 17.2. Event Persistence
+* 17.2. Event delivery model
 * [17.3. Service Persistence]({{ site.baseurl }}{% link docs/application-events/service-persistence.md %})
 * [17.4. Client Persistence]({{ site.baseurl }}{% link docs/application-events/client-persistence/index.md %})
 * [17.5. Setting up the service persistence]({{ site.baseurl }}{% link docs/application-events/setting-service-persistence.md %})

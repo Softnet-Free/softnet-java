@@ -20,7 +20,7 @@ Let's consider the quality of delivering events from a service to the broker at 
 ---
 #### TABLE OF CONTENTS
 * [17.1. Basic features]({{ site.baseurl }}{% link docs/application-events/basic-features.md %})
-* [17.2. Event Persistence]({{ site.baseurl }}{% link docs/application-events/event-persistence.md %})
+* [17.2. Event delivery model]({{ site.baseurl }}{% link docs/application-events/delivery-model.md %})
 * 17.3. Service Persistence
 * [17.4. Client Persistence]({{ site.baseurl }}{% link docs/application-events/client-persistence/index.md %})
 * [17.5. Setting up the service persistence]({{ site.baseurl }}{% link docs/application-events/setting-service-persistence.md %})

@@ -19,7 +19,7 @@ The quality of receiving events depends on the persistence level of the client, 
 ---
 #### TABLE OF CONTENTS
 * [17.1. Basic features]({{ site.baseurl }}{% link docs/application-events/basic-features.md %})
-* [17.2. Event Persistence]({{ site.baseurl }}{% link docs/application-events/event-persistence.md %})
+* [17.2. Event delivery model]({{ site.baseurl }}{% link docs/application-events/delivery-model.md %})
 * [17.3. Service Persistence]({{ site.baseurl }}{% link docs/application-events/service-persistence.md %})
 * 17.4. Client Persistence
     * [17.4.1. Persistence of Stateful Clients]({{ site.baseurl }}{% link docs/application-events/client-persistence/categories/stateful-client-persistence.md %})
