@@ -8,6 +8,5 @@ public enum ClientStatus
     AccessDenied,
     ServiceOwnerDisabled,
     ServiceDisabled,    
-    CreatorDisabled,
     SiteNotConstructed
 } 

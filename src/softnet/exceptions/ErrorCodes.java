@@ -21,7 +21,8 @@ public final class ErrorCodes
 	public final static int PASSWORD_NOT_MATCHED = 98;
     public final static int DUPLICATED_SERVICE_UID_USAGE = 100;
     public final static int DUPLICATED_CLIENT_KEY_USAGE = 101;
-
+    public final static int CONSTRAINT_VIOLATION = 102;
+    
 	public final static int CLIENT_OFFLINE = 105;
 
     public final static int ENDPOINT_DATA_FORMAT_ERROR = 110;

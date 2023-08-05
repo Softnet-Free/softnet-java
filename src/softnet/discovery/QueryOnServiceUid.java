@@ -29,7 +29,7 @@ public class QueryOnServiceUid extends QueryBuilder
     	
     	byte[] buffer = asnEncoder.getEncoding(2);
     	buffer[0] = Constants.ProtocolVersion;
-    	buffer[1] = Constants.FrontServer.SERVICE_UID;
+    	buffer[1] = Constants.Balancer.SERVICE_UID;
     	
     	return ByteBuffer.wrap(buffer);
 	}

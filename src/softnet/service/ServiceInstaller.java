@@ -22,7 +22,7 @@ class ServiceInstaller
 		return serviceStatus;
 	}	
 
-	public ServiceInstaller(SiteStructureAdapter siteStructure, String serviceVersion, Membership membership, StateController stateController, Object endpoint_mutex)
+	public ServiceInstaller(SiteStructureAdapter siteStructure, String serviceVersion, Membership membership, SyncController stateController, Object endpoint_mutex)
 	{
 		this.siteStructure = siteStructure;		
 		this.serviceVersion = serviceVersion;
@@ -47,7 +47,7 @@ class ServiceInstaller
 	private byte[] siteStructureHash = null;
 	private String serviceVersion;
 	private Membership membership;
-	private StateController stateController;
+	private SyncController stateController;
 			
 	public void onEndpointConnected(Channel channel)
 	{
@@ -120,7 +120,7 @@ class ServiceInstaller
         channel.send(MsgBuilder.Create(Constants.Service.Installer.ModuleId, Constants.Service.Installer.STATE, asnEncoder));		
 	}
 	
-	private void ProcessMessage_GetServiceProperties(byte[] message, Channel channel) throws AsnException
+	private void ProcessMessage_GetSiteStructure(byte[] message, Channel channel) throws AsnException
 	{
 		ASNEncoder asnEncoder = new ASNEncoder();        
         SequenceEncoder asnRootSequence = asnEncoder.Sequence();	          
@@ -224,7 +224,7 @@ class ServiceInstaller
         if(serviceVersion != null)
         	asnRootSequence.IA5String(1, serviceVersion);
 		
-		channel.send(MsgBuilder.Create(Constants.Service.Installer.ModuleId, Constants.Service.Installer.SERVICE_PROPERTIES, asnEncoder));
+		channel.send(MsgBuilder.Create(Constants.Service.Installer.ModuleId, Constants.Service.Installer.SITE_STRUCTURE, asnEncoder));
 	}
 	
 	public byte[] computeSSHash() throws HostFunctionalitySoftnetException
@@ -351,9 +351,9 @@ class ServiceInstaller
 			{
 				ProcessMessage_Parked(message, channel);
 			}
-			else if(messageTag == Constants.Service.Installer.GET_SERVICE_PROPERTIES)
+			else if(messageTag == Constants.Service.Installer.GET_SITE_STRUCTURE)
 			{
-				ProcessMessage_GetServiceProperties(message, channel);
+				ProcessMessage_GetSiteStructure(message, channel);
 			}
 			else
 				throw new FormatException();

@@ -131,7 +131,7 @@ class EndpointConnector
 	private Object mutex;    
 	private boolean isClosed = false;
     private boolean isActive = false;
-    private BClient balancerClient = null;
+    private BalancerClient balancerClient = null;
     private ChannelMonitor channelMonitor;
     private EndpointChannel endpointChannel = null;
     private byte[] channelId = null;
@@ -185,7 +185,7 @@ class EndpointConnector
 
     private void requestBalancer()
     {
-    	final BClient newBClient = new BClient(serverAddress, new QueryOnClientKey(clientURI), threadPool, scheduler);
+    	final BalancerClient newBClient = new BalancerClient(serverAddress, new QueryOnClientKey(clientURI), threadPool, scheduler);
     	synchronized(mutex)
         {
             if (isActive == false || balancerClient != null)
@@ -203,7 +203,7 @@ class EndpointConnector
     		new ResponseHandler<InetAddress, SoftnetException>()
     		{
     			private AtomicInteger mutex = new AtomicInteger(0);
-    			private BClient client = newBClient;    							
+    			private BalancerClient client = newBClient;    							
     			
     			@Override
 				public void onSuccess(InetAddress result)
@@ -225,7 +225,7 @@ class EndpointConnector
     		},    		
     		new Acceptor<SoftnetException>()
     		{
-    			private BClient client = newBClient;
+    			private BalancerClient client = newBClient;
 				
     			@Override
 				public void accept(SoftnetException exception)
@@ -235,7 +235,7 @@ class EndpointConnector
     		});
     }
 
-    private void BClient_onSuccess(InetAddress trackerIP, BClient caller)
+    private void BClient_onSuccess(InetAddress trackerIP, BalancerClient caller)
     {
     	EndpointChannel newChannel = null;
     	try
@@ -269,7 +269,7 @@ class EndpointConnector
     	}    
     }
 
-    private void BClient_onErrorNotification(SoftnetException ex, BClient caller)
+    private void BClient_onErrorNotification(SoftnetException ex, BalancerClient caller)
     {
     	synchronized(mutex)
         {
@@ -281,7 +281,7 @@ class EndpointConnector
         }
     }
 
-    private void BClient_onCriticalError(SoftnetException ex, BClient caller)
+    private void BClient_onCriticalError(SoftnetException ex, BalancerClient caller)
     {
     	synchronized(mutex)
     	{
@@ -951,6 +951,10 @@ class EndpointConnector
             {
     			Channel_onCriticalError(this, new DublicatedClientKeyUsageSoftnetException(clientURI));
             }
+    		else if (errorCode == ErrorCodes.CLIENT_NOT_REGISTERED)
+            {
+    			Channel_onCriticalError(this, new ClientNotRegisteredSoftnetException(clientURI));
+            }
     		else if (errorCode == ErrorCodes.SERVER_DBMS_ERROR)
             {
     			Channel_onError(this, new ServerDbmsErrorSoftnetException());
@@ -967,10 +971,6 @@ class EndpointConnector
             {
     			Channel_onError(this, new ServerBusySoftnetException());
             }
-    		else if (errorCode == ErrorCodes.INCOMPATIBLE_PROTOCOL_VERSION)
-            {
-    			Channel_onError(this, new IncompatibleProtocolVersionSoftnetException());
-            }
     		else if (errorCode == ErrorCodes.ENDPOINT_DATA_FORMAT_ERROR)
             {
     			Channel_onError(this, new EndpointDataFormatSoftnetException());
@@ -979,10 +979,10 @@ class EndpointConnector
             {
     			Channel_onError(this, new EndpointDataInconsistentSoftnetException());
             }
-    		else if (errorCode == ErrorCodes.CLIENT_NOT_REGISTERED)
+    		else if (errorCode == ErrorCodes.INCOMPATIBLE_PROTOCOL_VERSION)
             {
-    			Channel_onError(this, new ClientNotRegisteredSoftnetException(clientURI));
-            }    		
+    			Channel_onError(this, new IncompatibleProtocolVersionSoftnetException());
+            }
     		else if (errorCode == ErrorCodes.INVALID_CLIENT_CATEGORY)
             {
     			Channel_onError(this, new InvalidClientCategorySoftnetException(clientURI));

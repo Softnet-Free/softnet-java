@@ -12,7 +12,7 @@ import java.net.InetSocketAddress;
 import java.io.IOException;
 import java.util.ArrayList;
 
-public class BConnector implements STaskContext
+class BConnector implements STaskContext
 {
 	private String serverAddress;
 	private ThreadPool threadPool;

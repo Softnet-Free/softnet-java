@@ -148,8 +148,6 @@ class ClientInstaller
 			return ClientStatus.SiteNotConstructed;
 		if(statusCode == Constants.ClientStatus.ServiceTypeConflict)
 			return ClientStatus.ServiceTypeConflict;
-		if(statusCode == Constants.ClientStatus.CreatorDisabled)
-			return ClientStatus.CreatorDisabled;
 		if(statusCode == Constants.ClientStatus.ServiceOwnerDisabled)
 			return ClientStatus.ServiceOwnerDisabled;
 		if(statusCode == Constants.ClientStatus.ServiceDisabled)

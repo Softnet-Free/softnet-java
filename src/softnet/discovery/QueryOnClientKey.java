@@ -28,16 +28,16 @@ public class QueryOnClientKey extends QueryBuilder
 		sequence.PrintableString(clientURI.clientKey);
         
 		byte[] buffer = asnEncoder.getEncoding(2);
-		buffer[0] = Constants.ProtocolVersion;		
+		buffer[0] = Constants.ProtocolVersion;
     	
 		if(clientURI.category == ClientCategory.SingleService)
-			buffer[1] = Constants.FrontServer.CLIENT_S_KEY;
+			buffer[1] = Constants.Balancer.CLIENT_S_KEY;
         else if(clientURI.category == ClientCategory.SingleServiceStateless)
-        	buffer[1] = Constants.FrontServer.CLIENT_SS_KEY;
+        	buffer[1] = Constants.Balancer.CLIENT_SS_KEY;
         else if(clientURI.category == ClientCategory.MultiService)
-        	buffer[1] = Constants.FrontServer.CLIENT_M_KEY;
+        	buffer[1] = Constants.Balancer.CLIENT_M_KEY;
         else // clientURI.category == ClientKind.MultiServiceStateless
-        	buffer[1] = Constants.FrontServer.CLIENT_MS_KEY;
+        	buffer[1] = Constants.Balancer.CLIENT_MS_KEY;
 
 		return ByteBuffer.wrap(buffer);
 	}

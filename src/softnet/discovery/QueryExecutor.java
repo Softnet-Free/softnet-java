@@ -14,14 +14,14 @@ import softnet.exceptions.*;
 import softnet.utils.ByteConverter;
 import softnet.utils.Fnv1a;
 
-public class BQueryExecutor implements STaskContext
+class QueryExecutor implements STaskContext
 {
 	private SocketChannel socketChannel;
 	private String serverAddress;
 	private QueryBuilder queryBuilder;
 	private Scheduler scheduler;
 	
-	public BQueryExecutor(SocketChannel socketChannel, String serverAddress, QueryBuilder queryBuilder, Scheduler scheduler)
+	public QueryExecutor(SocketChannel socketChannel, String serverAddress, QueryBuilder queryBuilder, Scheduler scheduler)
 	{
 		this.socketChannel = socketChannel;
 		this.serverAddress = serverAddress;
@@ -49,11 +49,7 @@ public class BQueryExecutor implements STaskContext
 			java.net.InetSocketAddress remoteAddress = (java.net.InetSocketAddress)socket.getRemoteSocketAddress();
 			InetAddress serverIP = remoteAddress.getAddress();
 			
-			ByteBuffer requestBuffer = queryBuilder.GetQuery();
-			
-			int request_buffer_offset = requestBuffer.position();
-			int request_buffer_size = requestBuffer.remaining();
-						
+			ByteBuffer requestBuffer = queryBuilder.GetQuery();			
 			socketChannel.write(requestBuffer);
 			socket.shutdownOutput();
 
@@ -83,33 +79,45 @@ public class BQueryExecutor implements STaskContext
 				        	throw new InvalidServerEndpointSoftnetException(serverIP, Constants.ServerPorts.Balancer);
 
 						byte[] response = responseBuffer.array();
-						int receivedHash = ByteConverter.toInt32(response, 0);
-
-						byte[] request = requestBuffer.array();												
-						int requestHash = Fnv1a.get32BitHash(request, request_buffer_offset, request_buffer_size);
-
-						if(receivedHash != requestHash)
-		    				throw new InvalidServerEndpointSoftnetException(serverIP, Constants.ServerPorts.Balancer);
+						int responseHash = ByteConverter.toInt32(response, 0);						
+						
+						byte[] requestHash = ByteConverter.getBytes(Fnv1a.get32BitHash(requestBuffer.array()));
+						response[0] = requestHash[0];
+						response[1] = requestHash[1];
+						response[2] = requestHash[2];
+						response[3] = requestHash[3];
 
 		    			byte messageTag = response[4];
-				        if(messageTag == Constants.FrontServer.SUCCESS)
+				        if(messageTag == Constants.Balancer.SUCCESS)
 				        {
 				        	int ipVersion = response[5];	        	
-			    			if(ipVersion == Constants.FrontServer.IP_V6 && dataSize == 22 && serverIP instanceof Inet6Address)
+			    			if(ipVersion == Constants.Balancer.IP_V6 && dataSize == 22 && serverIP instanceof Inet6Address)
 			    			{
+			    				int computedResponseHash = Fnv1a.get32BitHash(response, 0, 22);
+								if(responseHash != computedResponseHash)
+				    				throw new InvalidServerEndpointSoftnetException(serverIP, Constants.ServerPorts.Balancer);
+			    				
 		    					byte[] addrBytes = new byte[16];
 		    					System.arraycopy(response, 6, addrBytes, 0, 16);
 		    					return InetAddress.getByAddress(addrBytes);
 			    			}
-			    			else if(ipVersion == Constants.FrontServer.IP_V4 && dataSize == 10 && serverIP instanceof Inet4Address)
+			    			else if(ipVersion == Constants.Balancer.IP_V4 && dataSize == 10 && serverIP instanceof Inet4Address)
 			    			{
-		    					byte[] addrBytes = new byte[4];
+			    				int computedResponseHash = Fnv1a.get32BitHash(response, 0, 10);
+								if(responseHash != computedResponseHash)
+				    				throw new InvalidServerEndpointSoftnetException(serverIP, Constants.ServerPorts.Balancer);
+
+			    				byte[] addrBytes = new byte[4];
 		    					System.arraycopy(response, 6, addrBytes, 0, 4);
 		    					return InetAddress.getByAddress(addrBytes);
 			    			}
 				        }
-				        else if(messageTag == Constants.FrontServer.ERROR && dataSize == 7)
+				        else if(messageTag == Constants.Balancer.ERROR && dataSize == 7)
 				        {
+		    				int computedResponseHash = Fnv1a.get32BitHash(response, 0, 7);
+							if(responseHash != computedResponseHash)
+			    				throw new InvalidServerEndpointSoftnetException(serverIP, Constants.ServerPorts.Balancer);
+				        	
 				        	int errorCode = ByteConverter.toInt32FromInt16(response, 5);
 				        	
 				        	queryBuilder.ThrowException(errorCode);

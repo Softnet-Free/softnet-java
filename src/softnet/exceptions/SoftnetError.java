@@ -30,6 +30,7 @@ public enum SoftnetError
 	PasswordNotMatched(ErrorCodes.PASSWORD_NOT_MATCHED),
 	DublicatedServiceUidUsage(ErrorCodes.DUPLICATED_SERVICE_UID_USAGE),
 	DublicatedClientKeyUsage(ErrorCodes.DUPLICATED_CLIENT_KEY_USAGE),
+	ConstraintViolation(ErrorCodes.CONSTRAINT_VIOLATION),
 	TimeoutExpired(ErrorCodes.TIMEOUT_EXPIRED),
 	ServerBusy(ErrorCodes.SERVER_BUSY),
 	ServerConfigError(ErrorCodes.SERVER_CONFIG_ERROR),

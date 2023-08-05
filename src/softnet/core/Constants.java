@@ -49,12 +49,12 @@ public class Constants
     {            
         public static final int Offline = 0;
         public static final int Online = 1;        
-        public static final int SiteNotConstructed = 2;
-        public static final int ServiceTypeConflict = 3;
-        public static final int SiteStructureMismatch = 4;
-        public static final int OwnerDisabled = 5;
-        public static final int SiteDisabled = 6;
-        public static final int Disabled = 7;
+        public static final int Disabled = 2;
+        public static final int SiteDisabled = 3;
+        public static final int OwnerDisabled = 4;
+        public static final int SiteStructureMismatch = 5;
+        public static final int ServiceTypeConflict = 6;
+        public static final int SiteNotConstructed = 7;
     }
 
     public class ClientStatus
@@ -64,12 +64,11 @@ public class Constants
         public static final int AccessDenied = 2;        
         public static final int ServiceDisabled = 3;
         public static final int ServiceOwnerDisabled = 4;
-        public static final int CreatorDisabled = 5;
-        public static final int ServiceTypeConflict = 6;
-        public static final int SiteNotConstructed = 7;
+        public static final int ServiceTypeConflict = 5;
+        public static final int SiteNotConstructed = 6;
     }
     
-    public static class FrontServer
+    public static class Balancer
     {
     	// Output
     	public static final byte CLIENT_S_KEY = 1;
@@ -119,10 +118,10 @@ public class Constants
         	public static final byte ModuleId = 5;
             // Output
             public static final byte STATE = 1;
-            public static final byte SERVICE_PROPERTIES = 2;
+            public static final byte SITE_STRUCTURE = 2;
             // Input
         	public static final byte GET_STATE = 1;
-            public static final byte GET_SERVICE_PROPERTIES = 2;
+            public static final byte GET_SITE_STRUCTURE = 2;
             public static final byte ONLINE = 3;
             public static final byte PARKED = 4;
         }
@@ -131,7 +130,7 @@ public class Constants
         {
         	public static final byte ModuleId = 6;
         	// Input
-        	public static final byte STATE = 1;
+        	public static final byte PARAMS = 1;
         	public static final byte HOSTNAME_CHANGED = 2;
         	public static final byte SET_PING_PERIOD = 3;
         }

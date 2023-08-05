@@ -8,7 +8,7 @@ import java.net.InetAddress;
 import softnet.core.*;
 import softnet.exceptions.*;
 
-public class BClient implements STaskContext
+public class BalancerClient implements STaskContext
 {
 	protected final String serverAddress;
 	private QueryBuilder queryBuilder;
@@ -18,7 +18,7 @@ public class BClient implements STaskContext
 	private Acceptor<SoftnetException> errorNotificationAcceptor;
 	private boolean is_closed = false;
 	
-	public BClient(String serverAddress, QueryBuilder queryBuilder, ThreadPool threadPool, Scheduler scheduler)
+	public BalancerClient(String serverAddress, QueryBuilder queryBuilder, ThreadPool threadPool, Scheduler scheduler)
 	{
 		this.serverAddress = serverAddress;
 		this.queryBuilder = queryBuilder;
@@ -47,14 +47,14 @@ public class BClient implements STaskContext
 			if(m_bConnector != null)
 				m_bConnector.close();
 			
-			if(m_bQueryExecutor != null)
-				m_bQueryExecutor.close();
+			if(m_queryExecutor != null)
+				m_queryExecutor.close();
 		}
 	}
 
 	private Object mutex = new Object();	
 	private BConnector m_bConnector = null;
-	private BQueryExecutor m_bQueryExecutor = null;
+	private QueryExecutor m_queryExecutor = null;
 	
 	private void connect()
 	{
@@ -98,12 +98,12 @@ public class BClient implements STaskContext
 	{
 		try
 		{
-			BQueryExecutor queryExecutor = new BQueryExecutor(socketChannel, serverAddress, queryBuilder, scheduler);		
+			QueryExecutor queryExecutor = new QueryExecutor(socketChannel, serverAddress, queryBuilder, scheduler);		
 			synchronized(mutex)
 			{
 				if (is_closed)
 		            return;
-				m_bQueryExecutor = queryExecutor;
+				m_queryExecutor = queryExecutor;
 			}			
 			InetAddress trackerIP = queryExecutor.exec();
 			responseHandler.onSuccess(trackerIP);
@@ -114,7 +114,7 @@ public class BClient implements STaskContext
 		}
 		catch(SoftnetException ex)
 		{
-			BQueryExecutor_onError(ex);
+			QueryExecutor_onError(ex);
 		}
 		finally
 		{
@@ -127,7 +127,7 @@ public class BClient implements STaskContext
 		errorNotificationAcceptor.accept(ex);
 	}
 				
-	protected void BQueryExecutor_onError(SoftnetException ex)
+	protected void QueryExecutor_onError(SoftnetException ex)
     {
 		errorNotificationAcceptor.accept(ex);
 		

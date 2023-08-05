@@ -86,7 +86,7 @@ public class ServiceEndpoint
 			}
 		};						
 
-		stateController = new StateController(endpointConnector, endpoint_mutex);
+		stateController = new SyncController(endpointConnector, endpoint_mutex);
 		stateController.hostnameChangedCallback = new Runnable()
 		{
 			public void run()
@@ -358,7 +358,7 @@ public class ServiceEndpoint
 	protected Object endpoint_mutex = new Object();
 	protected ThreadPool threadPool;
 	protected Scheduler scheduler;
-	private StateController stateController;
+	private SyncController stateController;
 	private Membership membership;
 	private ServiceInstaller serviceInstaller;
 	private TCPController tcpController;

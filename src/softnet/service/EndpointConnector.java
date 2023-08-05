@@ -39,7 +39,7 @@ class EndpointConnector
     		isActive = true;
     		connectionAttemptNumber = 0;
     	}    	
-		requestFS();
+    	requestBalancer();
     }
     
     public void Disconnect()
@@ -58,10 +58,10 @@ class EndpointConnector
             }
     		connectivityEventCallback.accept(new EndpointConnectivity(ConnectivityStatus.Disconnected));    		
     		
-    		if(fsClient != null)
+    		if(balancerClient != null)
     		{
-    			fsClient.close();
-    			fsClient = null;
+    			balancerClient.close();
+    			balancerClient = null;
     		}
     		
     		if(endpointChannel != null)
@@ -83,8 +83,8 @@ class EndpointConnector
     		
     		channelMonitor.close();
     		
-    		if(fsClient != null)
-    			fsClient.close();
+    		if(balancerClient != null)
+    			balancerClient.close();
     		
     		if(endpointChannel != null)
     			endpointChannel.close();
@@ -125,7 +125,7 @@ class EndpointConnector
     private Object mutex = new Object();    
     private boolean isClosed = false;
     private boolean isActive = false;
-    private BClient fsClient = null;
+    private BalancerClient balancerClient = null;
     private EndpointChannel endpointChannel = null;
     private ChannelMonitor channelMonitor;
     private byte[] channelId = null;
@@ -154,7 +154,7 @@ class EndpointConnector
     			
 				Acceptor<Object> acceptor = new Acceptor<Object>()
 				{
-					public void accept(Object noData) { requestFS(); }
+					public void accept(Object noData) { requestBalancer(); }
 				};
 				scheduler.add(new ScheduledTask(acceptor, null), waitTime);
     		}
@@ -162,7 +162,7 @@ class EndpointConnector
     		{
     			Acceptor<Object> acceptor = new Acceptor<Object>()
 				{
-					public void accept(Object noData) { requestFS(); }
+					public void accept(Object noData) { requestBalancer(); }
 				};
 				scheduler.add(new ScheduledTask(acceptor, null), 60);
     		}    		
@@ -171,38 +171,38 @@ class EndpointConnector
     	{
     		Acceptor<Object> acceptor = new Acceptor<Object>()
 			{
-				public void accept(Object noData) { requestFS(); }
+				public void accept(Object noData) { requestBalancer(); }
 			};
 			scheduler.add(new ScheduledTask(acceptor, null), 60);
     	}
     }
     
-    private void requestFS()
+    private void requestBalancer()
     {
-    	final BClient newFSClient = new BClient(serviceURI.server, new QueryOnServiceUid(serviceURI), threadPool, scheduler);
+    	final BalancerClient newBalancerClient = new BalancerClient(serviceURI.server, new QueryOnServiceUid(serviceURI), threadPool, scheduler);
     	synchronized(mutex)
         {
-            if (isActive == false || fsClient != null)
+            if (isActive == false || balancerClient != null)
             	return;
-            fsClient = newFSClient;            
+            balancerClient = newBalancerClient;            
     		connectivityEventCallback.accept(new EndpointConnectivity(ConnectivityStatus.AttemptToConnect));
     		
             if(connectionAttemptNumber <= 10)
             	connectionAttemptNumber++;
         }
     	
-    	newFSClient.request(
+    	newBalancerClient.request(
 			new ResponseHandler<InetAddress, SoftnetException>()
     		{
     			private AtomicInteger mutex = new AtomicInteger(0);
-    			private BClient client = newFSClient;    
+    			private BalancerClient client = newBalancerClient;    
     			
     			@Override
 				public void onSuccess(InetAddress result)
 				{
 					if(mutex.compareAndSet(0, 1))
 					{
-						FSClient_onSuccess(result, client);
+						BalancerClient_onSuccess(result, client);
 					}
 				}
     			
@@ -211,23 +211,23 @@ class EndpointConnector
 				{
 					if(mutex.compareAndSet(0, 1))
 					{
-						FSClient_onCriticalError(ex, client);
+						BalancerClient_onCriticalError(ex, client);
 					}
 				}
     		},
     		new Acceptor<SoftnetException>()
     		{
-    			private BClient client = newFSClient;
+    			private BalancerClient client = balancerClient;
     			
 				@Override
 				public void accept(SoftnetException exception)
 				{
-					FSClient_onErrorNotification(exception, client);
+					BalancerClient_onErrorNotification(exception, client);
 				}
     		});
     }
 
-    private void FSClient_onSuccess(InetAddress trackerIP, BClient caller)
+    private void BalancerClient_onSuccess(InetAddress trackerIP, BalancerClient caller)
     {
     	EndpointChannel newChannel = null;
     	try
@@ -243,7 +243,7 @@ class EndpointConnector
 	            	return;
 	            }
 	            
-	            fsClient = null;
+	            balancerClient = null;
 	            endpointChannel = newChannel;	            
 	        }    		
     		
@@ -258,7 +258,7 @@ class EndpointConnector
     	}
     }
 
-    private void FSClient_onErrorNotification(SoftnetException ex, BClient caller)
+    private void BalancerClient_onErrorNotification(SoftnetException ex, BalancerClient caller)
     {
     	synchronized(mutex)
         {
@@ -268,13 +268,13 @@ class EndpointConnector
         }
     }
 
-    private void FSClient_onCriticalError(SoftnetException ex, BClient caller)
+    private void BalancerClient_onCriticalError(SoftnetException ex, BalancerClient caller)
     {
     	synchronized(mutex)
     	{
     		if (caller.isClosed())
     			return;
-    		fsClient = null;
+    		balancerClient = null;
     		connectivityEventCallback.accept(new EndpointConnectivity(ConnectivityStatus.Down, ex));
     	}
     }
@@ -864,15 +864,7 @@ class EndpointConnector
     	{
     		 try
              {
-    			 /*
-    			 System.out.println("message: " + message[0] + " " + message[1]);
-    			 
-    			 for(byte b: message)
-    			 {
-    				 System.out.print(String.format("%02X ", b));
-    			 }	 
-    			 System.out.println();
-    			 */
+    			 //System.out.println("message: " + message[0] + " " + message[1]);    			     			 
     			 
     			 last_input_message_time = SystemClock.seconds();
                  int componentId = message[0];
@@ -946,10 +938,6 @@ class EndpointConnector
             {
     			Channel_onError(this, new ServerDbmsErrorSoftnetException());
             }
-    		else if (errorCode == ErrorCodes.SERVER_DATA_INTEGRITY_ERROR)
-            {
-    			Channel_onError(this, new ServerDataIntegritySoftnetException());
-            }
     		else if (errorCode == ErrorCodes.SERVER_CONFIG_ERROR)
             {
     			Channel_onError(this, new ServerConfigErrorSoftnetException());
@@ -961,6 +949,14 @@ class EndpointConnector
     		else if (errorCode == ErrorCodes.INCOMPATIBLE_PROTOCOL_VERSION)
             {
     			Channel_onError(this, new IncompatibleProtocolVersionSoftnetException());
+            }
+    		else if (errorCode == ErrorCodes.SERVER_DATA_INTEGRITY_ERROR)
+            {
+    			Channel_onError(this, new ServerDataIntegritySoftnetException());
+            }
+    		else if (errorCode == ErrorCodes.CONSTRAINT_VIOLATION)
+            {
+    			Channel_onCriticalError(this, new ConstraintViolationSoftnetException("One of the restrictions of the site structure parameters has been violated."));
             }
     		else if (errorCode == ErrorCodes.ENDPOINT_DATA_FORMAT_ERROR)
             {

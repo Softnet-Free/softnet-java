@@ -6,7 +6,7 @@ import softnet.core.MsgAcceptor;
 import softnet.exceptions.FormatException;
 import softnet.exceptions.SoftnetException;
 
-public class StateController
+public class SyncController
 {
 	public Runnable hostnameChangedCallback;
 	
@@ -16,7 +16,7 @@ public class StateController
 		return hostname;
 	}
 	
-	public StateController(EndpointConnector endpointConnector, Object endpoint_mutex)
+	public SyncController(EndpointConnector endpointConnector, Object endpoint_mutex)
 	{
 		this.endpointConnector = endpointConnector;
 		this.endpoint_mutex = endpoint_mutex;
@@ -38,7 +38,7 @@ public class StateController
 			});					
 	}	
 	
-	private void ProcessMessage_State(byte[] message) throws AsnException
+	private void ProcessMessage_Params(byte[] message) throws AsnException
 	{	
 		SequenceDecoder asnSequenceDecoder = ASNDecoder.Sequence(message, 2);
 		if(asnSequenceDecoder.exists(1))
@@ -76,9 +76,9 @@ public class StateController
 				return;
 			
 			byte messageTag = message[1];
-			if(messageTag == Constants.Service.StateController.STATE)
+			if(messageTag == Constants.Service.StateController.PARAMS)
 			{
-				ProcessMessage_State(message);
+				ProcessMessage_Params(message);
 			}
 			else if(messageTag == Constants.Service.StateController.HOSTNAME_CHANGED)
 			{
