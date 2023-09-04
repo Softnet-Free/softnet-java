@@ -1,5 +1,5 @@
 ---
-layout: default
+layout: default_no_content
 title: 12.2. Implementing event handlers
 parent: 12. Platform events related to clients
 has_children: true
