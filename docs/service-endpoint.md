@@ -12,7 +12,7 @@ public static ServiceEndpoint create(
     SiteStructure siteStructure, 
     String serviceVersion, 
     ServiceURI serviceURI, 
-    String password) throws HostFunctionalitySoftnetException
+    String password) throws HostSoftnetException
 ```
 The first parameter, *siteStructure*, is the site structure. This is how you bind it to the endpoint. Earlier, we overviewed the static method of the same class for creating the site structure:
 ```java
@@ -26,5 +26,5 @@ The second parameter, *serviceVersion*, is the version of the service’s interf
 
 And we have the last two parameters – *serviceURI* and *password* – the account data that you will most likely prefer to store in the app configuration file. The service owner takes this data on the site management page in Softnet MS. The service URI, which is of the form 'softnet-srv://&lt;serviceUuid&gt;@&lt;serverAddress&gt;', is used to instantiate the <span class="datatype">ServiceURI</span> class. An application passes it as an argument to the <span class="method">create</span> method's third parameter.  
 
-This method has one requirement to the underlying platform – it is expected to support the SHA-1 hash algorithm, otherwise the method throws an exception <span class="exception">HostFunctionalitySoftnetException</span>. Softnet uses SHA-1 to calculate the hash from the site structure attached to the endpoint. Whenever the service connects to the site, Softnet compares the structure attached to the endpoint with one from which the site has been constructed by comparing their hashes. The difference in just one parameter or in a single character of any name can result in a difference in hashes. Therefore, please note that all names, such as role names, event names, and others, are case sensitive as well.
+This method has one requirement to the underlying platform – it is expected to support the SHA-1 hash algorithm, otherwise the method throws an exception <span class="exception">HostSoftnetException</span>. Softnet uses SHA-1 to calculate the hash from the site structure attached to the endpoint. Whenever the service connects to the site, Softnet compares the structure attached to the endpoint with one from which the site has been constructed by comparing their hashes. The difference in just one parameter or in a single character of any name can result in a difference in hashes. Therefore, please note that all names, such as role names, event names, and others, are case sensitive as well.
 
