@@ -85,7 +85,7 @@ class Membership
 		}				
 	}
 	
-	public byte[] getHash() throws HostFunctionalitySoftnetException
+	public byte[] getHash() throws HostSoftnetException
 	{
 		synchronized(endpoint_mutex)
 		{

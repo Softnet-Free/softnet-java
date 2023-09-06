@@ -227,7 +227,7 @@ class RBMembership implements Membership
 		connectivity_status = StatusEnum.Disconnected;
 	}
 	
-	public byte[] getHash() throws HostFunctionalitySoftnetException
+	public byte[] getHash() throws HostSoftnetException
 	{
 		synchronized(endpoint_mutex)
 		{

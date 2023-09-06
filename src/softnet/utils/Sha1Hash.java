@@ -18,11 +18,11 @@ package softnet.utils;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import softnet.exceptions.HostFunctionalitySoftnetException;
+import softnet.exceptions.HostSoftnetException;
 
 public class Sha1Hash
 {
-	public static byte[] compute(byte[] buffer) throws HostFunctionalitySoftnetException
+	public static byte[] compute(byte[] buffer) throws HostSoftnetException
 	{
 		try
 		{
@@ -31,7 +31,7 @@ public class Sha1Hash
 		}
 		catch (NoSuchAlgorithmException ex) 
 		{
-			throw new HostFunctionalitySoftnetException(ex.getMessage());
+			throw new HostSoftnetException(ex.getMessage());
 		}		
 	}
 }

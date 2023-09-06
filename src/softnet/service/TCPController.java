@@ -128,7 +128,7 @@ class TCPController
 		{		
 			tcpBinding = findBinding(virtualPort);
 			if(tcpBinding == null)
-				throw new IllegalArgumentException(String.format("The specified port %d is not listening for TCP connections.", virtualPort));			
+				throw new IllegalArgumentException(String.format("The specified port %d is not being listened for TCP connections.", virtualPort));			
 		}
 		tcpBinding.accept(acceptHandler);
 	}

@@ -34,7 +34,7 @@ interface Membership
 	void onEndpointConnected(Channel channel);
 	void onEndpointDisconnected();
 	void onServiceOnline();
-	byte[] getHash() throws HostFunctionalitySoftnetException;
+	byte[] getHash() throws HostSoftnetException;
 	void addEventListener(ServiceEventListener listener);
 	void removeEventListener(ServiceEventListener listener);
 }

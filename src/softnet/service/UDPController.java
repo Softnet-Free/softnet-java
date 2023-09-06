@@ -128,7 +128,7 @@ class UDPController
 		{		
 			udpBinding = findBinding(virtualPort);
 			if(udpBinding == null)
-				throw new IllegalArgumentException(String.format("The specified port %d is not listening for UDP connections.", virtualPort));			
+				throw new IllegalArgumentException(String.format("The specified port %d is not being listened for UDP connections.", virtualPort));			
 		}
 		udpBinding.accept(acceptHandler);
 	}

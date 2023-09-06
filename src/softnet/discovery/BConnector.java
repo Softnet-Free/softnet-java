@@ -316,7 +316,7 @@ class BConnector implements STaskContext
 					return;
 				
 				closeChannel(socketChannel);
-				errorNotificationAcceptor.accept(new HostFunctionalitySoftnetException(ex.getMessage()));
+				errorNotificationAcceptor.accept(new HostSoftnetException(ex.getMessage()));
 				repeatConnectionAttempt(); 
 			}
 			catch(java.nio.channels.ClosedChannelException ex)

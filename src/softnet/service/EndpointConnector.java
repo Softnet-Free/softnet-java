@@ -897,7 +897,7 @@ class EndpointConnector
              {
             	 Channel_onError(this, new InputDataFormatSoftnetException());
              }
-    		 catch(HostFunctionalitySoftnetException e)
+    		 catch(HostSoftnetException e)
     		 {
     			 Channel_onCriticalError(this, e);
     		 }
@@ -1040,7 +1040,7 @@ class EndpointConnector
 			}
     	}
     	
-    	private void ProcessMessage_SaltAndKey1(byte[] message) throws AsnException, HostFunctionalitySoftnetException
+    	private void ProcessMessage_SaltAndKey1(byte[] message) throws AsnException, HostSoftnetException
     	{
     		SequenceDecoder sequence = ASNDecoder.Sequence(message, 2);            
     		handshakeData.Salt = sequence.OctetString(16, 20);
@@ -1167,7 +1167,7 @@ class EndpointConnector
 			{
 	    		onFormatError();
 			}
-			catch(HostFunctionalitySoftnetException e)
+			catch(HostSoftnetException e)
 			{
 				Channel_onCriticalError(this, e);
 			}

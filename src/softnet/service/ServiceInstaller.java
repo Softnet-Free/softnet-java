@@ -48,7 +48,7 @@ class ServiceInstaller
 		serviceStatus = ServiceStatus.Offline;
 	}
 	
-	public void Init() throws HostFunctionalitySoftnetException
+	public void Init() throws HostSoftnetException
 	{
 		siteStructureHash = computeSSHash();
 	}
@@ -243,7 +243,7 @@ class ServiceInstaller
 		channel.send(MsgBuilder.Create(Constants.Service.Installer.ModuleId, Constants.Service.Installer.SITE_STRUCTURE, asnEncoder));
 	}
 	
-	public byte[] computeSSHash() throws HostFunctionalitySoftnetException
+	public byte[] computeSSHash() throws HostSoftnetException
 	{
 		ASNEncoder asnEncoder = new ASNEncoder();
         SequenceEncoder asnSiteStructure = asnEncoder.Sequence();
