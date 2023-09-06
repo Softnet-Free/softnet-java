@@ -372,7 +372,7 @@ class SFEventController implements EventController
 		}
 	}
 
-	private void ProcessMessage_Sync(byte[] message, Channel channel) throws AsnException, softnet.exceptions.HostSoftnetException
+	private void ProcessMessage_Sync(byte[] message, Channel channel) throws AsnException, softnet.exceptions.HostErrorSoftnetException
 	{
 		byte[] receivedhash = null;
 		SequenceDecoder sequenceDecoder = ASNDecoder.Sequence(message, 2);

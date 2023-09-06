@@ -114,7 +114,7 @@ class SingleServiceGroup implements ServiceGroup
 		}
 	}
 	
-	public byte[] getHash() throws HostSoftnetException
+	public byte[] getHash() throws HostErrorSoftnetException
 	{
 		synchronized(endpoint_mutex)
 		{

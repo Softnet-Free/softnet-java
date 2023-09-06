@@ -30,7 +30,7 @@ public class ServiceEndpoint
 		return new SiteStructureAdapter(serviceType, contractAuthor);
 	}
 	
-	public static ServiceEndpoint create(SiteStructure siteStructure, String serviceVersion, ServiceURI serviceURI, String password) throws HostSoftnetException
+	public static ServiceEndpoint create(SiteStructure siteStructure, String serviceVersion, ServiceURI serviceURI, String password) throws HostErrorSoftnetException
 	{
 		if(siteStructure == null)
 			throw new IllegalArgumentException("'siteStructure' must not be null.");
@@ -63,7 +63,7 @@ public class ServiceEndpoint
 		scheduler = new Scheduler(threadPool);
 	}
 
-	private void initialize(SiteStructureAdapter siteStructure, String serviceVersion, ServiceURI serviceURI, String password) throws HostSoftnetException
+	private void initialize(SiteStructureAdapter siteStructure, String serviceVersion, ServiceURI serviceURI, String password) throws HostErrorSoftnetException
 	{
 		siteStructure.commit();
 		

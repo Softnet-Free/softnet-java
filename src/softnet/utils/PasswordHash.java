@@ -24,7 +24,7 @@ import java.security.NoSuchAlgorithmException;
 
 public class PasswordHash 
 {
-	public static byte[] compute(byte[] salt, String password) throws HostSoftnetException
+	public static byte[] compute(byte[] salt, String password) throws HostErrorSoftnetException
 	{
 		try
 		{
@@ -38,15 +38,15 @@ public class PasswordHash
 		}
 		catch (NoSuchAlgorithmException ex) 
 		{
-			throw new HostSoftnetException(ex.getMessage());
+			throw new HostErrorSoftnetException(ex.getMessage());
 		}		
 		catch (UnsupportedEncodingException ex) 
 		{
-			throw new HostSoftnetException(ex.getMessage());
+			throw new HostErrorSoftnetException(ex.getMessage());
 		}
 	}
 	
-	public static byte[] compute(byte[] key1, byte[] key2, byte[] salt, String password) throws HostSoftnetException
+	public static byte[] compute(byte[] key1, byte[] key2, byte[] salt, String password) throws HostErrorSoftnetException
 	{
 		try
 		{
@@ -67,11 +67,11 @@ public class PasswordHash
 		}
 		catch (NoSuchAlgorithmException ex) 
 		{
-			throw new HostSoftnetException(ex.getMessage());
+			throw new HostErrorSoftnetException(ex.getMessage());
 		}		
 		catch (UnsupportedEncodingException ex) 
 		{
-			throw new HostSoftnetException(ex.getMessage());
+			throw new HostErrorSoftnetException(ex.getMessage());
 		}
 	}
 }

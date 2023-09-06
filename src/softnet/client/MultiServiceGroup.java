@@ -62,7 +62,7 @@ class MultiServiceGroup implements ServiceGroup
 		clientStatus = StatusEnum.Disconnected;
 	}
 	
-	public byte[] getHash() throws HostSoftnetException
+	public byte[] getHash() throws HostErrorSoftnetException
 	{
 		synchronized(endpoint_mutex)
 		{

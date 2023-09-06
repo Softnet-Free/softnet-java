@@ -16,11 +16,11 @@
 
 package softnet.exceptions;
 
-public class HostSoftnetException extends SoftnetException
+public class HostErrorSoftnetException extends SoftnetException
 {
 	private static final long serialVersionUID = -1993083820798060986L;
 
-	public HostSoftnetException(String message)
+	public HostErrorSoftnetException(String message)
 	{
 		super(SoftnetError.UnsupportedHostFunctionality, message);
 	}
