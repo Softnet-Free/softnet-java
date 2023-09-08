@@ -138,7 +138,7 @@ class RPCController
 			rootSequence.OctetString(transactionUid);
 			rootSequence.Int64(remoteService.getId());
 			rootSequence.IA5String(remoteProcedure.name);			
-			rootSequence.OctetString(asnEncoder.getEncoding());
+			rootSequence.OctetString(remoteProcedure.getEncoding());
 			SoftnetMessage message = MsgBuilder.Create(Constants.Client.RpcController.ModuleId, Constants.Client.RpcController.REQUEST, asnEncoder);
 			
 			RpcRequest request = new RpcRequest(transactionUid);
