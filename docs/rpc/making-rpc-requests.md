@@ -37,7 +37,7 @@ public void call(
     Object attachment,
     int waitSeconds)
 ```
-Here is a description of the first three parameters of the method:
+Here is the description of the first three parameters of the method:
 *	<span class="param">remoteService</span> represents a service to which the request is addressed;
 *	<span class="param">remoteProcedure</span> contains the name and arguments of the procedure;
 *	<span class="param">responseHandler</span> is an implementation of the <span class="datatype">RPCResponseHandler</span> interface that the client app provides to the method;  
@@ -63,16 +63,16 @@ public interface RPCResponseHandler {
 }
 ```
 
-The interface has three methods to implement. Each request ends with a call to one of these methods by the endpoint. In case of success, it calls the <span class="method">onSuccess</span> method. Here is a description of its parameters:
+The interface has three methods to implement. Each request ends with a callback to one of these methods. In case of success, the <span class="method">onSuccess</span> method is called back. Here is a description of its parameters:
 *	<span class="param">context</span> is, as usual, the context of any response handler of the platform;
 *	<span class="param">result</span> is an object of type <span class="datatype">SequenceDecoder</span> that contains the ASN.1 DER encoded data returned as a result by the remote procedure.  
 
-The interface has two overloaded methods, <span class="method">onError</span>, to handle requests completed with an error. The first overloaded method, <span class="method">onError</span>, is called if an error is returned by the remote procedure. Here is a description of its parameters:
+The interface has two overloaded methods, <span class="method">onError</span>, to handle requests completed with an error. The first overloaded method, <span class="method">onError</span>, is called back if an error is returned by the remote procedure. Here is the description of its parameters:
 *	<span class="param">context</span> is the context of the response;
 *	<span class="param">errorCode</span> is an error code returned by the remore procedure;
 *	<span class="param">error</span> contains additional data that describes an error.  
 
-The second overloaded method is called if an error is detected by the platform. It provides the error in the second parameter of type <span class="exception">SoftnetException</span>. Possible exceptions are listed below:
+The second overloaded method is called back if an error is detected by the platform. It provides the error in the second parameter of type <span class="exception">SoftnetException</span>. Possible exceptions are listed below:
 *	<span class="exception">ServiceOfflineSoftnetException</span> – the remote service is offline; 
 *	<span class="exception">AccessDeniedSoftnetException</span> – the client does not have enough permissions to call the remote procedure;
 *	<span class="exception">MissingProcedureSoftnetException</span> – the procedure name you specified when calling the RPC is incorrect;
