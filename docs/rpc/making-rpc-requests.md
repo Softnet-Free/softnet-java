@@ -63,7 +63,7 @@ public interface RPCResponseHandler {
 }
 ```
 
-The interface has three methods to implement. Each request ends with a callback to one of these methods. In case of success, the <span class="method">onSuccess</span> method is called back. Here is a description of its parameters:
+The interface has three methods to implement. Each request ends with a callback to one of these methods. In case of success, the <span class="method">onSuccess</span> method is called back. Here is the description of its parameters:
 *	<span class="param">context</span> is, as usual, the context of any response handler of the platform;
 *	<span class="param">result</span> is an object of type <span class="datatype">SequenceDecoder</span> that contains the ASN.1 DER encoded data returned as a result by the remote procedure.  
 
