@@ -227,8 +227,8 @@ class UDPConnectorV6 implements UDPConnector, STaskContext
 		
 		while(connectorState !=  ConnectorState.COMPLETED)
 		{
-			byte[] data = new byte[32];
-			DatagramPacket packet = new DatagramPacket(data, 32);
+			byte[] data = new byte[18];
+			DatagramPacket packet = new DatagramPacket(data, 18);
 			
 			try
 			{
