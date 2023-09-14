@@ -171,6 +171,9 @@ class TCPController
 		int userKind = asnSequence.Int32(1, 4);
 		long userId = asnSequence.Int64();
 		long clientId = asnSequence.Int64();
+		byte[] sessionTag = null;
+		if(asnSequence.exists(1))
+			sessionTag = asnSequence.OctetString();
 		asnSequence.end();
 		
 		TCPBinding tcpBinding = null; 
@@ -241,7 +244,7 @@ class TCPController
 			return;
 		}
 		
-		channel.send(EncodeMessage_RequestOk(requestUid, virtualPort, userKind, clientId));
+		channel.send(EncodeMessage_RequestOk(requestUid, virtualPort, userKind, clientId, sessionTag));
 	}
 	
 	private void processMessage_RzvData(byte[] message, Channel channel) throws AsnException, FormatException
@@ -250,14 +253,25 @@ class TCPController
 		byte[] requestUid = asnSequence.OctetString(16);
 		UUID connectionUid = asnSequence.OctetStringToUUID();
 		int serverId = asnSequence.Int32();
-		byte[] serverIpBytes = asnSequence.OctetString();
+		byte[] serverIPBytes = asnSequence.OctetString();
 		int virtualPort = asnSequence.Int32();
 		int userKind = asnSequence.Int32(1, 4);
 		long userId = asnSequence.Int64();
 		long clientId = asnSequence.Int64();
+		byte[] sessionTagEncoding = null;
+		if(asnSequence.exists(1))
+			sessionTagEncoding = asnSequence.OctetString();
 		asnSequence.end();
 		
-		InetAddress serverIp = ByteConverter.toInetAddress(serverIpBytes);
+		SequenceDecoder sessionTag = null;
+		try {
+			sessionTag = sessionTagEncoding == null ? null : ASNDecoder.Sequence(sessionTagEncoding);
+		}
+		catch(AsnException e) {
+			return;
+		}
+		
+		InetAddress serverIP = ByteConverter.toInetAddress(serverIPBytes);
 		
 		TCPBinding tcpBinding = null; 
 		synchronized(mutex)
@@ -321,7 +335,7 @@ class TCPController
 			}
 		}
 		
-		tcpBinding.createConnection(channel, requestUid, connectionUid, serverId, serverIp, userKind, user, clientId);
+		tcpBinding.createConnection(channel, requestUid, connectionUid, serverId, serverIP, userKind, user, clientId, sessionTag);
 	}
 	
 	private void processMessage_AuthHash(byte[] message, Channel channel) throws AsnException
@@ -368,7 +382,7 @@ class TCPController
 		}
 	}
 	
-	private SoftnetMessage EncodeMessage_RequestOk(byte[] requestUid, int virtualPort, int userKind, long clientId)
+	private SoftnetMessage EncodeMessage_RequestOk(byte[] requestUid, int virtualPort, int userKind, long clientId, byte[] sessionTag)
 	{
 		ASNEncoder asnEncoder = new ASNEncoder();
         SequenceEncoder asnSequence = asnEncoder.Sequence();
@@ -376,6 +390,8 @@ class TCPController
         asnSequence.Int32(virtualPort);
         asnSequence.Int32(userKind);
         asnSequence.Int64(clientId);
+        if(sessionTag != null)
+        	asnSequence.OctetString(1, sessionTag);
         return MsgBuilder.Create(Constants.Service.TcpController.ModuleId, Constants.Service.TcpController.REQUEST_OK, asnEncoder);
 	}
 	

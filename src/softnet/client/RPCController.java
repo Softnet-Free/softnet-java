@@ -115,7 +115,7 @@ class RPCController
 		}			
 	}		
 	
-	public void call(RemoteService remoteService, RemoteProcedure remoteProcedure, RPCResponseHandler responseHandler, Object attachment, int waitSeconds)
+	public void call(RemoteService remoteService, RemoteProcedure remoteProcedure, RPCResponseHandler responseHandler)
 	{
 		if(remoteService == null)
 			throw new IllegalArgumentException("The argument 'remoteService' is null."); 
@@ -144,8 +144,7 @@ class RPCController
 			RpcRequest request = new RpcRequest(transactionUid);
 			request.remoteService = remoteService;
 			request.procedureName = remoteProcedure.name;
-			request.responseHandler = responseHandler;
-			request.attachment = attachment;
+			request.responseHandler = responseHandler;			
 			Acceptor<Object> acceptor = new Acceptor<Object>()
 			{
 				public void accept(Object state) { onRequestTimeoutExpired(state); }
@@ -160,14 +159,72 @@ class RPCController
 		        channel.send(message);
 			}
 			
-			scheduler.add(request.timeoutControlTask, waitSeconds);
+			scheduler.add(request.timeoutControlTask, Constants.RpcWaitSeconds);
 		}
 		catch(SoftnetException ex)
 		{
-			responseHandler.onError(new ResponseContext(clientEndpoint, remoteService, attachment), ex);
+			responseHandler.onError(new ResponseContext(clientEndpoint, remoteService, null), ex);
 		}
 	}
+
+	public void call(RemoteService remoteService, RemoteProcedure remoteProcedure, RPCResponseHandler responseHandler, RequestParams requestParams)
+	{
+		if(remoteService == null)
+			throw new IllegalArgumentException("The argument 'remoteService' is null."); 
+
+		if(remoteProcedure == null)
+			throw new IllegalArgumentException("The argument 'remoteProcedure' is null."); 
+		
+		if(responseHandler == null)
+			throw new IllegalArgumentException("The argument 'responseHandler' is null."); 
+
+		if(requestParams == null)
+			throw new IllegalArgumentException("The argument 'requestParams' is null."); 
+		
+		try
+		{			
+			if(remoteService.isOnline() == false)
+				throw new ServiceOfflineSoftnetException();
+
+			UUID transactionUid = UUID.randomUUID();
+
+			ASNEncoder asnEncoder = new ASNEncoder();
+			SequenceEncoder rootSequence = asnEncoder.Sequence();
+			rootSequence.OctetString(transactionUid);
+			rootSequence.Int64(remoteService.getId());
+			rootSequence.IA5String(remoteProcedure.name);			
+			rootSequence.OctetString(remoteProcedure.getEncoding());
+			if(requestParams.sessionTag != null)
+				rootSequence.OctetString(1, requestParams.getSessionTagEncoding()); 			
+			SoftnetMessage message = MsgBuilder.Create(Constants.Client.RpcController.ModuleId, Constants.Client.RpcController.REQUEST, asnEncoder);
 			
+			RpcRequest request = new RpcRequest(transactionUid);
+			request.remoteService = remoteService;
+			request.procedureName = remoteProcedure.name;
+			request.responseHandler = responseHandler;
+			request.attachment = requestParams.attachment;
+			Acceptor<Object> acceptor = new Acceptor<Object>()
+			{
+				public void accept(Object state) { onRequestTimeoutExpired(state); }
+			};
+			request.timeoutControlTask = new ScheduledTask(acceptor, request);
+			
+			synchronized(endpoint_mutex)
+			{
+				if(clientStatus != StatusEnum.Online)
+					throw new ClientOfflineSoftnetException();			
+				requestList.add(request);
+		        channel.send(message);
+			}
+			
+			scheduler.add(request.timeoutControlTask, requestParams.waitSeconds > 0 ? requestParams.waitSeconds : Constants.RpcWaitSeconds);
+		}
+		catch(SoftnetException ex)
+		{
+			responseHandler.onError(new ResponseContext(clientEndpoint, remoteService, requestParams.attachment), ex);
+		}
+	}
+
 	private void onRequestTimeoutExpired(Object state)
 	{
 		RpcRequest request = (RpcRequest)state;
@@ -339,6 +396,7 @@ class RPCController
 		public RpcRequest(UUID transactionUid)
 		{
 			this.transactionUid = transactionUid;
+			this.attachment = null;
 		}		
 	}
 }

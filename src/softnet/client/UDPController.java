@@ -91,6 +91,9 @@ class UDPController
 				if(request.udpConnector != null)
 					request.udpConnector.abort();
 				
+				if(request.datagramSocket != null)
+					request.datagramSocket.close();
+				
 				final UdpRequest f_request = request;				
 				Runnable runnable = new Runnable()
 				{
@@ -114,9 +117,13 @@ class UDPController
 
 			for(UdpRequest request: requestList)
 			{
-				request.timeoutControlTask.cancel();				
+				request.timeoutControlTask.cancel();		
+				
 				if(request.udpConnector != null)
 					request.udpConnector.abort();
+				
+				if(request.datagramSocket != null)
+					request.datagramSocket.close();
 			}
 			requestList.clear();
 		}	
@@ -137,9 +144,13 @@ class UDPController
 					requestList.remove(i);
 					
 					request.timeoutControlTask.cancel();
+
 					if(request.udpConnector != null)
 						request.udpConnector.abort();
-						
+
+					if(request.datagramSocket != null)
+						request.datagramSocket.close();
+
 					final UdpRequest f_request = request;
 					Runnable runnable = new Runnable()
 					{
@@ -154,9 +165,15 @@ class UDPController
 			}			
 		}
 	}
-	
-	public void connect(RemoteService remoteService, int virtualPort, UDPResponseHandler responseHandler, Object attachment)
+
+	public void connect(RemoteService remoteService, int virtualPort, UDPResponseHandler responseHandler)
 	{
+		if(remoteService == null)
+			throw new IllegalArgumentException("The argument 'remoteService' is null."); 
+
+		if(responseHandler == null)
+			throw new IllegalArgumentException("The argument 'responseHandler' is null."); 
+
 		try
 		{			
 			if(remoteService.isOnline() == false)
@@ -173,7 +190,6 @@ class UDPController
 				request.remoteService = remoteService;
 				request.virtualPort = virtualPort;
 				request.responseHandler = responseHandler;
-				request.attachment = attachment;								
 				Acceptor<Object> acceptor = new Acceptor<Object>()
 				{
 					public void accept(Object state) { onConnectionAttemptTimedOut(state); }
@@ -194,21 +210,77 @@ class UDPController
 		}
 		catch(SoftnetException ex)
 		{
-			responseHandler.onError(new ResponseContext(clientEndpoint, remoteService, attachment), ex);
+			responseHandler.onError(new ResponseContext(clientEndpoint, remoteService, null), ex);
+		}
+	}
+
+	public void connect(RemoteService remoteService, int virtualPort, UDPResponseHandler responseHandler, RequestParams requestParams)
+	{
+		if(remoteService == null)
+			throw new IllegalArgumentException("The argument 'remoteService' is null."); 
+
+		if(responseHandler == null)
+			throw new IllegalArgumentException("The argument 'responseHandler' is null."); 
+
+		if(requestParams == null)
+			throw new IllegalArgumentException("The argument 'requestParams' is null."); 
+
+		try
+		{			
+			if(remoteService.isOnline() == false)
+				throw new ServiceOfflineSoftnetException();
+			
+			synchronized(mutex)
+			{
+				if(clientStatus != StatusEnum.Online)
+					throw new ClientOfflineSoftnetException();
+				
+				UUID requestUid = UUID.randomUUID();
+				
+				UdpRequest request = new UdpRequest(requestUid);
+				request.remoteService = remoteService;
+				request.virtualPort = virtualPort;
+				request.responseHandler = responseHandler;
+				request.attachment = requestParams.attachment;								
+				Acceptor<Object> acceptor = new Acceptor<Object>()
+				{
+					public void accept(Object state) { onConnectionAttemptTimedOut(state); }
+				};
+				request.timeoutControlTask = new ScheduledTask(acceptor, request);
+				requestList.add(request);
+				
+				ASNEncoder asnEncoder = new ASNEncoder();
+				SequenceEncoder rootSequence = asnEncoder.Sequence();
+				rootSequence.OctetString(requestUid);
+				rootSequence.Int64(remoteService.getId());
+				rootSequence.Int32(virtualPort);
+				if(requestParams.sessionTag != null)
+					rootSequence.OctetString(1, requestParams.getSessionTagEncoding());
+				SoftnetMessage message = MsgBuilder.Create(Constants.Client.UdpController.ModuleId, Constants.Client.UdpController.REQUEST, asnEncoder);
+				
+				channel.send(message);
+				scheduler.add(request.timeoutControlTask, requestParams.waitSeconds > 0 ? requestParams.waitSeconds : Constants.UdpConnectingWaitSeconds);
+			}
+		}
+		catch(SoftnetException ex)
+		{
+			responseHandler.onError(new ResponseContext(clientEndpoint, remoteService, requestParams.attachment), ex);
 		}
 	}
 	
 	private void onConnectionAttemptTimedOut(Object state)
 	{
 		UdpRequest request = (UdpRequest)state;
-		synchronized(mutex)
-		{
+		synchronized(mutex)	{
 			if(requestList.remove(request) == false)
 				return;
 		}
 		
 		if(request.udpConnector != null)
 			request.udpConnector.abort();
+		
+		if(request.datagramSocket != null)
+			request.datagramSocket.close();
 
 		request.responseHandler.onError(new ResponseContext(clientEndpoint, request.remoteService, request.attachment), new TimeoutExpiredSoftnetException("The connection attempt timed out."));		
 	}
@@ -219,10 +291,10 @@ class UDPController
 		UUID requestUid = asnRootSequence.OctetStringToUUID();
 		byte[] connectionUid = asnRootSequence.OctetString(16);
 		int serverId = asnRootSequence.Int32();
-		byte[] serverIpBytes = asnRootSequence.OctetString();
+		byte[] serverIPBytes = asnRootSequence.OctetString();
 		asnRootSequence.end();
 		
-		InetAddress serverIp = ByteConverter.toInetAddress(serverIpBytes);
+		InetAddress serverIP = ByteConverter.toInetAddress(serverIPBytes);
 		
 		UdpRequest request = null;
 		synchronized(mutex)
@@ -235,13 +307,13 @@ class UDPController
 				return;
 			
 			request.serverId = serverId;
-			if(serverIp instanceof Inet6Address)
+			if(serverIP instanceof Inet6Address)
 			{
-				request.udpConnector = new UDPConnectorV6(connectionUid, serverIp, scheduler);
+				request.udpConnector = new UDPConnectorV6(connectionUid, serverIP, scheduler);
 			}
 			else
 			{
-				request.udpConnector = new UDPConnectorV4(connectionUid, serverIp, scheduler);
+				request.udpConnector = new UDPConnectorV4(connectionUid, serverIP, scheduler);
 			}
 		}
 		
@@ -284,9 +356,23 @@ class UDPController
 	{
 		synchronized(mutex)
 		{
-			if(requestList.remove(request) == false)
+			if(requestList.contains(request) == false) {
+				datagramSocket.close();
 				return;
+			}
+			
+			if(request.is_connection_accepted == false)
+			{
+				request.datagramSocket = datagramSocket;
+				request.remoteSocketAddress = remoteSocketAddress;
+				request.mode = mode;
+				request.is_connection_established = true;
+				return;
+			}
+			
+			requestList.remove(request);
 		}				
+		
 		request.timeoutControlTask.cancel();
 		request.responseHandler.onSuccess(new ResponseContext(clientEndpoint, request.remoteService, request.attachment), datagramSocket, remoteSocketAddress, mode);		
 	}
@@ -297,7 +383,8 @@ class UDPController
 		{
 			if(requestList.remove(request) == false)
 				return;
-		}						
+		}	
+		
 		request.timeoutControlTask.cancel();
 		request.responseHandler.onError(new ResponseContext(clientEndpoint, request.remoteService, request.attachment), exception);
 	}
@@ -329,6 +416,47 @@ class UDPController
 			public void run()
 			{
 				f_request.responseHandler.onError(new ResponseContext(clientEndpoint, f_request.remoteService, f_request.attachment), f_exception);
+			}
+		};
+		threadPool.execute(runnable);			
+	}
+	
+	private void processMessage_ConnectionAccepted(byte[] message, Channel channel) throws AsnException
+	{
+		SequenceDecoder asnRootSequence = ASNDecoder.Sequence(message, 2);
+		UUID requestUid = asnRootSequence.OctetStringToUUID();
+		asnRootSequence.end();
+
+		UdpRequest request = null;
+		synchronized(mutex)
+		{
+			if(channel.closed())
+				return;
+			request = findRequest(requestUid);			
+			if(request == null)
+				return;
+			
+			if(request.is_connection_established == false) {
+				request.is_connection_accepted = true;
+				return;
+			}
+			
+			requestList.remove(request);
+		}				
+
+		request.timeoutControlTask.cancel();
+		
+		final UdpRequest f_request = request;
+		Runnable runnable = new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				f_request.responseHandler.onSuccess(
+					new ResponseContext(clientEndpoint, f_request.remoteService, f_request.attachment), 
+					f_request.datagramSocket, 
+					f_request.remoteSocketAddress, 
+					f_request.mode);		
 			}
 		};
 		threadPool.execute(runnable);			
@@ -404,6 +532,10 @@ class UDPController
 		{
 			processMessage_RzvData(message, channel);
 		}
+		else if(messageTag == Constants.Client.UdpController.CONNECTION_ACCEPTED)
+		{
+			processMessage_ConnectionAccepted(message, channel);
+		}
 		else if(messageTag == Constants.Client.UdpController.REQUEST_ERROR)
 		{
 			processMessage_RequestError(message, channel);
@@ -466,13 +598,18 @@ class UDPController
 		public UDPResponseHandler responseHandler;
 		public Object attachment;
 		public int serverId;
-		public UDPConnector udpConnector;
+		public UDPConnector udpConnector = null;
 		public ScheduledTask timeoutControlTask;
 		
-		public UdpRequest(UUID requestUid)
-		{
+		public boolean is_connection_established = false;
+		public boolean is_connection_accepted = false;
+		
+		public java.net.DatagramSocket datagramSocket = null;
+		public java.net.InetSocketAddress remoteSocketAddress;
+		public ConnectionMode mode;
+		
+		public UdpRequest(UUID requestUid) {
 			this.requestUid = requestUid;
-			this.udpConnector = null;
 		}
 	}
 }

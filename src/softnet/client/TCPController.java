@@ -92,7 +92,10 @@ class TCPController
 				
 				if(request.tcpConnector != null)
 					request.tcpConnector.abort();
-				
+
+				if(request.socketChannel != null)
+					closeChannel(request.socketChannel);
+
 				final TcpRequest f_request = request;				
 				Runnable runnable = new Runnable()
 				{
@@ -116,9 +119,13 @@ class TCPController
 
 			for(TcpRequest request: requestList)
 			{
-				request.timeoutControlTask.cancel();				
+				request.timeoutControlTask.cancel();	
+				
 				if(request.tcpConnector != null)
 					request.tcpConnector.abort();
+				
+				if(request.socketChannel != null)
+					closeChannel(request.socketChannel);
 			}
 			requestList.clear();
 		}	
@@ -143,6 +150,9 @@ class TCPController
 					if(request.tcpConnector != null)
 						request.tcpConnector.abort();
 						
+					if(request.socketChannel != null)
+						closeChannel(request.socketChannel);
+
 					final TcpRequest f_request = request;
 					Runnable runnable = new Runnable()
 					{
@@ -158,8 +168,14 @@ class TCPController
 		}
 	}
 	
-	public void connect(RemoteService remoteService, int virtualPort, TCPOptions tcpOptions, TCPResponseHandler responseHandler, Object attachment)
+	public void connect(RemoteService remoteService, int virtualPort, TCPOptions tcpOptions, TCPResponseHandler responseHandler)
 	{
+		if(remoteService == null)
+			throw new IllegalArgumentException("The argument 'remoteService' is null."); 
+
+		if(responseHandler == null)
+			throw new IllegalArgumentException("The argument 'responseHandler' is null."); 
+
 		try
 		{
 			if(remoteService.isOnline() == false)
@@ -177,7 +193,6 @@ class TCPController
 				request.virtualPort = virtualPort;
 				request.tcpOptions = tcpOptions;
 				request.responseHandler = responseHandler;
-				request.attachment = attachment;								
 				Acceptor<Object> acceptor = new Acceptor<Object>()
 				{
 					public void accept(Object state) { onConnectionAttemptTimedOut(state); }
@@ -198,21 +213,78 @@ class TCPController
 		}
 		catch(SoftnetException ex)
 		{
-			responseHandler.onError(new ResponseContext(clientEndpoint, remoteService, attachment), ex);
+			responseHandler.onError(new ResponseContext(clientEndpoint, remoteService, null), ex);
 		}
 	}
-	
+
+	public void connect(RemoteService remoteService, int virtualPort, TCPOptions tcpOptions, TCPResponseHandler responseHandler, RequestParams requestParams)
+	{
+		if(remoteService == null)
+			throw new IllegalArgumentException("The argument 'remoteService' is null."); 
+
+		if(responseHandler == null)
+			throw new IllegalArgumentException("The argument 'responseHandler' is null."); 
+
+		if(requestParams == null)
+			throw new IllegalArgumentException("The argument 'requestParams' is null."); 
+
+		try
+		{
+			if(remoteService.isOnline() == false)
+				throw new ServiceOfflineSoftnetException();
+			
+			synchronized(mutex)
+			{
+				if(clientStatus != StatusEnum.Online)
+					throw new ClientOfflineSoftnetException();
+				
+				UUID requestUid = UUID.randomUUID();
+				
+				TcpRequest request = new TcpRequest(requestUid);
+				request.remoteService = remoteService;
+				request.virtualPort = virtualPort;
+				request.tcpOptions = tcpOptions;
+				request.responseHandler = responseHandler;
+				request.attachment = requestParams.attachment;								
+				Acceptor<Object> acceptor = new Acceptor<Object>()
+				{
+					public void accept(Object state) { onConnectionAttemptTimedOut(state); }
+				};
+				request.timeoutControlTask = new ScheduledTask(acceptor, request);
+				requestList.add(request);
+				
+				ASNEncoder asnEncoder = new ASNEncoder();
+				SequenceEncoder rootSequence = asnEncoder.Sequence();
+				rootSequence.OctetString(requestUid);
+				rootSequence.Int64(remoteService.getId());
+				rootSequence.Int32(virtualPort);
+				if(requestParams.sessionTag != null)
+					rootSequence.OctetString(1, requestParams.getSessionTagEncoding());
+				SoftnetMessage message = MsgBuilder.Create(Constants.Client.TcpController.ModuleId, Constants.Client.TcpController.REQUEST, asnEncoder);
+				
+				channel.send(message);
+				scheduler.add(request.timeoutControlTask, requestParams.waitSeconds > 0 ? requestParams.waitSeconds : Constants.TcpConnectingWaitSeconds);
+			}
+		}
+		catch(SoftnetException ex)
+		{
+			responseHandler.onError(new ResponseContext(clientEndpoint, remoteService, requestParams.attachment), ex);
+		}
+	}
+		
 	private void onConnectionAttemptTimedOut(Object state)
 	{
 		TcpRequest request = (TcpRequest)state;
-		synchronized(mutex)
-		{
+		synchronized(mutex) {
 			if(requestList.remove(request) == false)
 				return;
 		}
 
 		if(request.tcpConnector != null)
 			request.tcpConnector.abort();
+
+		if(request.socketChannel != null)
+			closeChannel(request.socketChannel);
 
 		request.responseHandler.onError(new ResponseContext(clientEndpoint, request.remoteService, request.attachment), new ConnectionAttemptFailedSoftnetException("The connection attempt timed out."));		
 	}
@@ -288,12 +360,22 @@ class TCPController
 	{
 		synchronized(mutex)
 		{
-			if(requestList.remove(request) == false)
-			{
-				closeChannel(socketChannel); 
+			if(requestList.contains(request) == false) {
+				closeChannel(request.socketChannel);
 				return;
 			}
+
+			if(request.is_connection_accepted == false)
+			{
+				request.socketChannel = socketChannel;
+				request.mode = mode;
+				request.is_connection_established = true;
+				return;
+			}
+			
+			requestList.remove(request);			
 		}				
+		
 		request.timeoutControlTask.cancel();
 		request.responseHandler.onSuccess(new ResponseContext(clientEndpoint, request.remoteService, request.attachment), socketChannel, mode);
 	}
@@ -344,6 +426,46 @@ class TCPController
 		threadPool.execute(runnable);			
 	}
 
+	private void processMessage_ConnectionAccepted(byte[] message, Channel channel) throws AsnException
+	{
+		SequenceDecoder asnRootSequence = ASNDecoder.Sequence(message, 2);
+		UUID requestUid = asnRootSequence.OctetStringToUUID();
+		asnRootSequence.end();
+
+		TcpRequest request = null;
+		synchronized(mutex)
+		{
+			if(channel.closed())
+				return;
+			request = findRequest(requestUid);			
+			if(request == null)
+				return;
+			
+			if(request.is_connection_established == false) {
+				request.is_connection_accepted = true;
+				return;
+			}
+			
+			requestList.remove(request);
+		}				
+
+		request.timeoutControlTask.cancel();
+		
+		final TcpRequest f_request = request;
+		Runnable runnable = new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				f_request.responseHandler.onSuccess(
+					new ResponseContext(clientEndpoint, f_request.remoteService, f_request.attachment), 
+					f_request.socketChannel, 
+					f_request.mode);		
+			}
+		};
+		threadPool.execute(runnable);			
+	}
+	
 	private void processMessage_AuthHash(byte[] message, Channel channel) throws AsnException
 	{
 		SequenceDecoder asnSequence = ASNDecoder.Sequence(message, 2);
@@ -414,6 +536,10 @@ class TCPController
 		{
 			processMessage_RzvData(message, channel);
 		}
+		else if(messageTag == Constants.Client.TcpController.CONNECTION_ACCEPTED)
+		{
+			processMessage_ConnectionAccepted(message, channel);
+		}
 		else if(messageTag == Constants.Client.TcpController.REQUEST_ERROR)
 		{
 			processMessage_RequestError(message, channel);
@@ -470,8 +596,7 @@ class TCPController
 	
 	private void closeChannel(SocketChannel channel)
 	{
-		try
-		{
+		try	{
 			channel.close();
 		}
 		catch(IOException e) {}
@@ -484,15 +609,19 @@ class TCPController
 		public int virtualPort;
 		public TCPOptions tcpOptions;
 		public TCPResponseHandler responseHandler;
-		public Object attachment;
+		public Object attachment = null;
 		public int serverId;
-		public TCPConnector tcpConnector;
+		public TCPConnector tcpConnector = null;
 		public ScheduledTask timeoutControlTask;
 		
-		public TcpRequest(UUID requestUid)
-		{
+		public boolean is_connection_established = false;
+		public boolean is_connection_accepted = false;
+		
+		public SocketChannel socketChannel = null;
+		public ConnectionMode mode;
+		
+		public TcpRequest(UUID requestUid) {
 			this.requestUid = requestUid;
-			this.tcpConnector = null;
 		}
 	}
 }

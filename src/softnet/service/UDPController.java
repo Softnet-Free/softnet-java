@@ -171,6 +171,9 @@ class UDPController
 		int userKind = asnSequence.Int32(1, 4);
 		long userId = asnSequence.Int64();
 		long clientId = asnSequence.Int64();
+		byte[] sessionTag = null;
+		if(asnSequence.exists(1))
+			sessionTag = asnSequence.OctetString();
 		asnSequence.end();
 		
 		UDPBinding udpBinding = null; 
@@ -241,7 +244,7 @@ class UDPController
 			return;
 		}
 		
-		channel.send(EncodeMessage_RequestOk(requestUid, virtualPort, userKind, clientId));
+		channel.send(EncodeMessage_RequestOk(requestUid, virtualPort, userKind, clientId, sessionTag));
 	}
 
 	private void processMessage_RzvData(byte[] message, Channel channel) throws AsnException, FormatException
@@ -255,9 +258,20 @@ class UDPController
 		int userKind = asnSequence.Int32(1, 4);
 		long userId = asnSequence.Int64();
 		long clientId = asnSequence.Int64();
+		byte[] sessionTagEncoding = null;
+		if(asnSequence.exists(1))
+			sessionTagEncoding = asnSequence.OctetString();
 		asnSequence.end();
 		
-		InetAddress serverIp = ByteConverter.toInetAddress(serverIpBytes);
+		SequenceDecoder sessionTag = null;
+		try {
+			sessionTag = sessionTagEncoding == null ? null : ASNDecoder.Sequence(sessionTagEncoding);
+		}
+		catch(AsnException e) {
+			return;
+		}
+		
+		InetAddress serverIP = ByteConverter.toInetAddress(serverIpBytes);
 		
 		UDPBinding udpBinding = null; 
 		synchronized(mutex)
@@ -321,7 +335,7 @@ class UDPController
 			}
 		}
 		
-		udpBinding.createConnection(channel, requestUid, connectionUid, serverId, serverIp, userKind, user, clientId);
+		udpBinding.createConnection(channel, requestUid, connectionUid, serverId, serverIP, userKind, user, clientId, sessionTag);
 	}
 
 	private void processMessage_AuthHash(byte[] message, Channel channel) throws AsnException
@@ -368,7 +382,7 @@ class UDPController
 		}
 	}
 	
-	private SoftnetMessage EncodeMessage_RequestOk(byte[] requestUid, int virtualPort, int userKind, long clientId)
+	private SoftnetMessage EncodeMessage_RequestOk(byte[] requestUid, int virtualPort, int userKind, long clientId, byte[] sessionTag)
 	{
 		ASNEncoder asnEncoder = new ASNEncoder();
         SequenceEncoder asnSequence = asnEncoder.Sequence();
@@ -376,6 +390,8 @@ class UDPController
         asnSequence.Int32(virtualPort);
         asnSequence.Int32(userKind);
         asnSequence.Int64(clientId);
+        if(sessionTag != null)
+        	asnSequence.OctetString(1, sessionTag);
         return MsgBuilder.Create(Constants.Service.UdpController.ModuleId, Constants.Service.UdpController.REQUEST_OK, asnEncoder);
 	}
 	

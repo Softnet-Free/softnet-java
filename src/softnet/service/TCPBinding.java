@@ -26,8 +26,7 @@ import java.util.UUID;
 import softnet.*;
 import softnet.core.*;
 import softnet.exceptions.ErrorCodes;
-import softnet.asn.ASNEncoder;
-import softnet.asn.SequenceEncoder;
+import softnet.asn.*;
 
 class TCPBinding 
 {
@@ -152,7 +151,8 @@ class TCPBinding
 				Thread thread = new Thread()
 				{
 				    public void run(){
-				    	acceptHandler.accept(new RequestContext(serviceEndpoint, request.user, request.clientId), request.socketChannel, request.mode);
+						request.channel.send(EncodeMessage_ConnectionAccepted(request.requestUid, request.userKind, request.clientId));		
+				    	acceptHandler.accept(new RequestContext(serviceEndpoint, request.user, request.clientId, request.sessionTag), request.socketChannel, request.mode);
 				    }
 				};
 				thread.start();
@@ -178,7 +178,7 @@ class TCPBinding
 		return false;
 	}
 	
-	public void createConnection(Channel channel, byte[] requestUid, UUID connectionUid, int serverId, InetAddress serverIp, int userKind, MembershipUser user, long clientId)
+	public void createConnection(Channel channel, byte[] requestUid, UUID connectionUid, int serverId, InetAddress serverIp, int userKind, MembershipUser user, long clientId, SequenceDecoder sessionTag)
 	{
 		TcpRequest request = new TcpRequest();
 		request.channel = channel;
@@ -188,6 +188,7 @@ class TCPBinding
 		request.userKind = userKind;
 		request.user = user;
 		request.clientId = clientId;
+		request.sessionTag = sessionTag;
 		Acceptor<Object> acceptor = new Acceptor<Object>()
 		{
 			public void accept(Object state) { onConnectionAttemptTimedOut(state); }
@@ -309,7 +310,8 @@ class TCPBinding
 			}
 		}
 		
-		acceptHandler.accept(new RequestContext(serviceEndpoint, request.user, request.clientId), socketChannel, mode);
+		request.channel.send(EncodeMessage_ConnectionAccepted(request.requestUid, request.userKind, request.clientId));		
+		acceptHandler.accept(new RequestContext(serviceEndpoint, request.user, request.clientId, request.sessionTag), socketChannel, mode);
 	}
 
 	private void onTcpConnectorError(int errorCode, Object attachment)
@@ -344,6 +346,16 @@ class TCPBinding
         asnSequence.Int32(userKind);
         asnSequence.Int64(clientId);
         return MsgBuilder.Create(Constants.Service.TcpController.ModuleId, Constants.Service.TcpController.REQUEST_ERROR, asnEncoder);
+	}
+	
+	private SoftnetMessage EncodeMessage_ConnectionAccepted(byte[] requestUid, int userKind, long clientId)
+	{
+		ASNEncoder asnEncoder = new ASNEncoder();
+        SequenceEncoder asnSequence = asnEncoder.Sequence();
+        asnSequence.OctetString(requestUid);
+        asnSequence.Int32(userKind);
+        asnSequence.Int64(clientId);
+        return MsgBuilder.Create(Constants.Service.TcpController.ModuleId, Constants.Service.TcpController.CONNECTION_ACCEPTED, asnEncoder);
 	}
 	
 	private TcpRequest findPendingRequest(UUID connectionUid)
@@ -387,6 +399,7 @@ class TCPBinding
 		public int userKind;
 		public MembershipUser user;
 		public long clientId;
+		public SequenceDecoder sessionTag;
 		public TCPConnector tcpConnector;
 		public SocketChannel socketChannel;
 		public ConnectionMode mode;

@@ -186,6 +186,7 @@ public class Constants
             // Output
         	public static final byte REQUEST_OK = 1;
         	public static final byte REQUEST_ERROR = 2;
+        	public static final byte CONNECTION_ACCEPTED = 3;
         	public static final byte AUTH_KEY = 7;
         }        
 
@@ -200,6 +201,7 @@ public class Constants
             // Output
         	public static final byte REQUEST_OK = 1;
         	public static final byte REQUEST_ERROR = 2;
+        	public static final byte CONNECTION_ACCEPTED = 3;
         	public static final byte AUTH_KEY = 7;
         }        
 
@@ -319,6 +321,7 @@ public class Constants
         	// Input
         	public static final byte RZV_DATA = 1;        	
         	public static final byte REQUEST_ERROR = 2;
+        	public static final byte CONNECTION_ACCEPTED = 3;
         	public static final byte AUTH_HASH = 7;
         	public static final byte AUTH_ERROR = 8;
         }
@@ -332,6 +335,7 @@ public class Constants
         	// Input
         	public static final byte RZV_DATA = 1;        	
         	public static final byte REQUEST_ERROR = 2;
+        	public static final byte CONNECTION_ACCEPTED = 3;
         	public static final byte AUTH_HASH = 7;
         	public static final byte AUTH_ERROR = 8;
         }

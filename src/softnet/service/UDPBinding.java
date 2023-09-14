@@ -144,7 +144,8 @@ class UDPBinding
 				Thread thread = new Thread()
 				{
 				    public void run(){
-				    	acceptHandler.accept(new RequestContext(serviceEndpoint, request.user, request.clientId), request.datagramSocket, request.remoteSocketAddress, request.mode);
+						request.channel.send(EncodeMessage_ConnectionAccepted(request.requestUid, request.userKind, request.clientId));		
+				    	acceptHandler.accept(new RequestContext(serviceEndpoint, request.user, request.clientId, request.sessionTag), request.datagramSocket, request.remoteSocketAddress, request.mode);
 				    }
 				};
 				thread.start();
@@ -170,7 +171,7 @@ class UDPBinding
 		return false;
 	}
 
-	public void createConnection(Channel channel, byte[] requestUid, UUID connectionUid, int serverId, InetAddress serverIp, int userKind, MembershipUser user, long clientId)
+	public void createConnection(Channel channel, byte[] requestUid, UUID connectionUid, int serverId, InetAddress serverIp, int userKind, MembershipUser user, long clientId, SequenceDecoder sessionTag)
 	{
 		UdpRequest request = new UdpRequest();
 		request.channel = channel;
@@ -180,6 +181,7 @@ class UDPBinding
 		request.userKind = userKind;
 		request.user = user;
 		request.clientId = clientId;
+		request.sessionTag = sessionTag;
 		Acceptor<Object> acceptor = new Acceptor<Object>()
 		{
 			public void accept(Object state) { onConnectionAttemptTimedOut(state); }
@@ -275,7 +277,7 @@ class UDPBinding
 	
 	private void onUdpConnectorSuccess(DatagramSocket datagramSocket, InetSocketAddress remoteSocketAddress, ConnectionMode mode, Object attachment)
 	{
-		final UdpRequest request = (UdpRequest)attachment;
+		UdpRequest request = (UdpRequest)attachment;
 		UDPAcceptHandler acceptHandler = null;
 		synchronized(mutex)
 		{
@@ -302,7 +304,8 @@ class UDPBinding
 			}
 		}
 		
-		acceptHandler.accept(new RequestContext(serviceEndpoint, request.user, request.clientId), datagramSocket, remoteSocketAddress, mode);
+		request.channel.send(EncodeMessage_ConnectionAccepted(request.requestUid, request.userKind, request.clientId));		
+		acceptHandler.accept(new RequestContext(serviceEndpoint, request.user, request.clientId, request.sessionTag), datagramSocket, remoteSocketAddress, mode);
 	}
 
 	private void onUdpConnectorError(int errorCode, Object attachment)
@@ -338,7 +341,17 @@ class UDPBinding
         asnSequence.Int64(clientId);
         return MsgBuilder.Create(Constants.Service.UdpController.ModuleId, Constants.Service.UdpController.REQUEST_ERROR, asnEncoder);
 	}
-	
+
+	private SoftnetMessage EncodeMessage_ConnectionAccepted(byte[] requestUid, int userKind, long clientId)
+	{
+		ASNEncoder asnEncoder = new ASNEncoder();
+        SequenceEncoder asnSequence = asnEncoder.Sequence();
+        asnSequence.OctetString(requestUid);
+        asnSequence.Int32(userKind);
+        asnSequence.Int64(clientId);
+        return MsgBuilder.Create(Constants.Service.UdpController.ModuleId, Constants.Service.UdpController.CONNECTION_ACCEPTED, asnEncoder);
+	}
+
 	private UdpRequest findPendingRequest(UUID connectionUid)
 	{
 		for(UdpRequest request: pendingRequests)
@@ -371,6 +384,7 @@ class UDPBinding
 		public int userKind;
 		public MembershipUser user;
 		public long clientId;
+		public SequenceDecoder sessionTag;
 		public UDPConnector udpConnector;
 		public DatagramSocket datagramSocket;
 		public InetSocketAddress remoteSocketAddress;

@@ -162,7 +162,20 @@ class RPCController
 		final long userId = asnSequence.Int64();
 		final long clientId = asnSequence.Int64();
 		byte[] argumentsEncoding = asnSequence.OctetString(2, 65536);
+		byte[] sessionTagEncoding = null;
+		if(asnSequence.exists(1))
+			sessionTagEncoding = asnSequence.OctetString();
 		asnSequence.end();
+		
+		SequenceDecoder arguments = null;
+		SequenceDecoder sessionTag = null;
+		try {
+			arguments = ASNDecoder.Sequence(argumentsEncoding);
+			sessionTag = sessionTagEncoding == null ? null : ASNDecoder.Sequence(sessionTagEncoding);
+		}
+		catch(AsnException e) {
+			return;
+		}
 		
 		AppProcedure appProcedure = null;
 		synchronized(mutex)
@@ -234,44 +247,41 @@ class RPCController
 			concurrentRequests++;
 		}
 		
-		final SequenceDecoder f_arguments = ASNDecoder.Sequence(argumentsEncoding);
+		final SequenceDecoder f_arguments = arguments;
+		final SequenceDecoder f_sessionTag = sessionTag;
 		final AppProcedure f_appProcedure = appProcedure;
 		
 		Runnable runnable = new Runnable()
 		{
 			@Override
 			public void run()
-			{					
+			{
 				try
 				{
-					ASNEncoder asnEncoder = new ASNEncoder();
-					SequenceEncoder result = asnEncoder.Sequence();
+					ASNEncoder asnResultEncoder = new ASNEncoder();
+					SequenceEncoder result = asnResultEncoder.Sequence();
 					
-					ASNEncoder asnEncoder2 = new ASNEncoder();
-					SequenceEncoder error = asnEncoder2.Sequence();
+					ASNEncoder asnErrorEncoder = new ASNEncoder();
+					SequenceEncoder error = asnErrorEncoder.Sequence();
 					
 					if(user.isStatelessGuest() == false)
 					{
-						int errorCode = f_appProcedure.requestHandler.execute(new RequestContext(serviceEndpoint, user, clientId), f_arguments, result, error);
-						if(errorCode == 0)
-						{
-							channel.send(EncodeMessage_Result(transactionUid, userKind, clientId, asnEncoder.getEncoding()));
+						int errorCode = f_appProcedure.requestHandler.execute(new RequestContext(serviceEndpoint, user, clientId, f_sessionTag), f_arguments, result, error);
+						if(errorCode == 0) {
+							channel.send(EncodeMessage_Result(transactionUid, userKind, clientId, asnResultEncoder.getEncoding()));
 						}
-						else
-						{
-							channel.send(EncodeMessage_AppError(transactionUid, userKind, clientId, errorCode, asnEncoder2.getEncoding()));
+						else {
+							channel.send(EncodeMessage_AppError(transactionUid, userKind, clientId, errorCode, asnErrorEncoder.getEncoding()));
 						}
 					}
 					else
 					{
-						int errorCode = f_appProcedure.requestHandler.execute(new RequestContext(serviceEndpoint, user, 0), f_arguments, result, error);
-						if(errorCode == 0)
-						{
-							channel.send(EncodeMessage_Result(transactionUid, userKind, clientId, asnEncoder.getEncoding()));
+						int errorCode = f_appProcedure.requestHandler.execute(new RequestContext(serviceEndpoint, user, 0, f_sessionTag), f_arguments, result, error);
+						if(errorCode == 0) {
+							channel.send(EncodeMessage_Result(transactionUid, userKind, clientId, asnResultEncoder.getEncoding()));
 						}
-						else
-						{
-							channel.send(EncodeMessage_AppError(transactionUid, userKind, clientId, errorCode, asnEncoder2.getEncoding()));
+						else {
+							channel.send(EncodeMessage_AppError(transactionUid, userKind, clientId, errorCode, asnErrorEncoder.getEncoding()));
 						}
 					}
 				}

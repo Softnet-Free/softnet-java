@@ -170,40 +170,35 @@ public class ClientEndpoint
 	{
 		return eventController.removeSubscription(eventName);
 	}
-	
+		
 	public void call(RemoteService remoteService, RemoteProcedure remoteProcedure, RPCResponseHandler responseHandler)
 	{
-		rpcController.call(remoteService, remoteProcedure, responseHandler, null, Constants.RpcWaitSeconds);
+		rpcController.call(remoteService, remoteProcedure, responseHandler);
 	}
-	
-	public void call(RemoteService remoteService, RemoteProcedure remoteProcedure, RPCResponseHandler responseHandler, Object attachment)
-	{
-		rpcController.call(remoteService, remoteProcedure, responseHandler, attachment, Constants.RpcWaitSeconds);
-	}
-	
-	public void call(RemoteService remoteService, RemoteProcedure remoteProcedure, RPCResponseHandler responseHandler, Object attachment, int waitSeconds)
-	{
-		rpcController.call(remoteService, remoteProcedure, responseHandler, attachment, waitSeconds);
+
+	public void call(RemoteService remoteService, RemoteProcedure remoteProcedure, RPCResponseHandler responseHandler, RequestParams requestParams)
+	{		
+		rpcController.call(remoteService, remoteProcedure, responseHandler, requestParams);
 	}
 	
 	public void tcpConnect(RemoteService remoteService, int virtualPort, TCPOptions tcpOptions, TCPResponseHandler responseHandler)
 	{
-		tcpController.connect(remoteService, virtualPort, tcpOptions, responseHandler, null);
+		tcpController.connect(remoteService, virtualPort, tcpOptions, responseHandler);
 	}
 	
-	public void tcpConnect(RemoteService remoteService, int virtualPort, TCPOptions tcpOptions, TCPResponseHandler responseHandler, Object attachment)
+	public void tcpConnect(RemoteService remoteService, int virtualPort, TCPOptions tcpOptions, TCPResponseHandler responseHandler, RequestParams requestParams)
 	{		
-		tcpController.connect(remoteService, virtualPort, tcpOptions, responseHandler, attachment);
+		tcpController.connect(remoteService, virtualPort, tcpOptions, responseHandler, requestParams);
 	}
 	
 	public void udpConnect(RemoteService remoteService, int virtualPort, UDPResponseHandler responseHandler)
 	{
-		udpController.connect(remoteService, virtualPort, responseHandler, null);
+		udpController.connect(remoteService, virtualPort, responseHandler);
 	}
 	
-	public void udpConnect(RemoteService remoteService, int virtualPort, UDPResponseHandler responseHandler, Object attachment)
+	public void udpConnect(RemoteService remoteService, int virtualPort, UDPResponseHandler responseHandler, RequestParams requestParams)
 	{
-		udpController.connect(remoteService, virtualPort, responseHandler, attachment);
+		udpController.connect(remoteService, virtualPort, responseHandler, requestParams);
 	}
 	
 	public static ClientEndpoint create(String serviceType, String contractAuthor, ClientURI clientURI) throws IllegalArgumentException

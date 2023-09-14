@@ -17,16 +17,19 @@
 package softnet.service;
 
 import softnet.MembershipUser;
+import softnet.asn.SequenceDecoder;
 
 public class RequestContext {
 	public final ServiceEndpoint serviceEndpoint;
 	public final MembershipUser user;
 	public final long clientId;
+	public final SequenceDecoder sessionTag; 
 
-	public RequestContext(ServiceEndpoint serviceEndpoint, MembershipUser user, long clientId)
+	public RequestContext(ServiceEndpoint serviceEndpoint, MembershipUser user, long clientId, SequenceDecoder sessionTag)
 	{
 		this.serviceEndpoint = serviceEndpoint;
 		this.user = user;
 		this.clientId = clientId;
+		this.sessionTag = sessionTag;
 	}
 }

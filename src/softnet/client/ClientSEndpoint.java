@@ -128,15 +128,10 @@ public class ClientSEndpoint extends ClientEndpoint
 	{
 		super.call(remoteService, remoteProcedure, responseHandler);
 	}
-	
-	public void call(RemoteProcedure remoteProcedure, RPCResponseHandler responseHandler, Object attachment)
+		
+	public void call(RemoteProcedure remoteProcedure, RPCResponseHandler responseHandler, RequestParams requestParams)
 	{
-		super.call(remoteService, remoteProcedure, responseHandler, attachment);
-	}
-	
-	public void call(RemoteProcedure remoteProcedure, RPCResponseHandler responseHandler, Object attachment, int waitSeconds)
-	{
-		super.call(remoteService, remoteProcedure, responseHandler, attachment, waitSeconds);
+		super.call(remoteService, remoteProcedure, responseHandler, requestParams);
 	}
 	
 	public void tcpConnect(int virtualPort, TCPResponseHandler responseHandler, TCPOptions tcpOptions)
@@ -144,9 +139,9 @@ public class ClientSEndpoint extends ClientEndpoint
 		super.tcpConnect(remoteService, virtualPort, tcpOptions, responseHandler);
 	}
 	
-	public void tcpConnect(int virtualPort, TCPResponseHandler responseHandler, TCPOptions tcpOptions, Object attachment)
+	public void tcpConnect(int virtualPort, TCPResponseHandler responseHandler, TCPOptions tcpOptions, RequestParams requestParams)
 	{		
-		super.tcpConnect(remoteService, virtualPort, tcpOptions, responseHandler, attachment);
+		super.tcpConnect(remoteService, virtualPort, tcpOptions, responseHandler, requestParams);
 	}
 
 	public void udpConnect(int virtualPort, UDPResponseHandler responseHandler)
@@ -154,8 +149,8 @@ public class ClientSEndpoint extends ClientEndpoint
 		super.udpConnect(remoteService, virtualPort, responseHandler);
 	}
 
-	public void udpConnect(int virtualPort, UDPResponseHandler responseHandler, Object attachment)
+	public void udpConnect(int virtualPort, UDPResponseHandler responseHandler, RequestParams requestParams)
 	{
-		super.udpConnect(remoteService, virtualPort, responseHandler, attachment);
+		super.udpConnect(remoteService, virtualPort, responseHandler, requestParams);
 	}
 }
