@@ -309,7 +309,9 @@ class RPCController
 		SequenceDecoder asnRootSequence = ASNDecoder.Sequence(message, 2);
 		UUID transactionUid = asnRootSequence.OctetStringToUUID();
 		final int errorCode = asnRootSequence.Int32();
-		byte[] errorEncoding = asnRootSequence.OctetString(2, 65536);
+		SequenceDecoder asnErrorSequence = null; 
+		if(asnRootSequence.exists(1))
+			asnErrorSequence = ASNDecoder.Sequence(asnRootSequence.OctetString(2, 65536));
 		asnRootSequence.end();
 		
 		RpcRequest request = null;
@@ -326,13 +328,13 @@ class RPCController
 				return;
 			
 			final RpcRequest f_request = request;
-			final SequenceDecoder asnError = ASNDecoder.Sequence(errorEncoding);
+			final SequenceDecoder f_asnErrorSequence = asnErrorSequence;
 			Runnable runnable = new Runnable()
 			{
 				@Override
 				public void run()
 				{
-					f_request.responseHandler.onError(new ResponseContext(clientEndpoint, f_request.remoteService, f_request.attachment), errorCode, asnError);
+					f_request.responseHandler.onError(new ResponseContext(clientEndpoint, f_request.remoteService, f_request.attachment), errorCode, f_asnErrorSequence);
 				}
 			};
 			threadPool.execute(runnable);

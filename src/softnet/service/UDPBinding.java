@@ -118,12 +118,14 @@ class UDPBinding
 			{
 				for(UdpRequest request: pendingRequests)
 					request.udpConnector.abort();			
+				pendingRequests.clear();
 			}
 			
 			if(completedRequests.size() > 0)
 			{
 				for(UdpRequest request: completedRequests)
 					request.datagramSocket.close();
+				completedRequests.clear();
 			}
 		}		
 	}
@@ -199,6 +201,8 @@ class UDPBinding
 		
 		synchronized(mutex)
 		{
+			if(channel.isClosed())
+				return;
 			pendingRequests.add(request);
 		}
 
@@ -279,6 +283,7 @@ class UDPBinding
 	{
 		UdpRequest request = (UdpRequest)attachment;
 		UDPAcceptHandler acceptHandler = null;
+		
 		synchronized(mutex)
 		{
 			if(pendingRequests.remove(request) == false)

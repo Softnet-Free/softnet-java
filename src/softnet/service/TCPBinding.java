@@ -125,12 +125,14 @@ class TCPBinding
 			{
 				for(TcpRequest request: pendingRequests)
 					request.tcpConnector.abort();
+				pendingRequests.clear();
 			}
 			
 			if(completedRequests.size() > 0)
 			{
 				for(TcpRequest request: completedRequests)
 					closeChannel(request.socketChannel);
+				completedRequests.clear();
 			}
 		}		
 	}
@@ -178,7 +180,7 @@ class TCPBinding
 		return false;
 	}
 	
-	public void createConnection(Channel channel, byte[] requestUid, UUID connectionUid, int serverId, InetAddress serverIp, int userKind, MembershipUser user, long clientId, SequenceDecoder sessionTag)
+	public void createConnection(Channel channel, byte[] requestUid, UUID connectionUid, int serverId, InetAddress serverIP, int userKind, MembershipUser user, long clientId, SequenceDecoder sessionTag)
 	{
 		TcpRequest request = new TcpRequest();
 		request.channel = channel;
@@ -195,17 +197,19 @@ class TCPBinding
 		};
 		request.timeoutControlTask = new ScheduledTask(acceptor, request);
 		
-		if(serverIp instanceof Inet6Address)
+		if(serverIP instanceof Inet6Address)
 		{
-			request.tcpConnector = new TCPConnectorV6(connectionUid, serverIp, tcpOptions, serviceEndpoint.scheduler);
+			request.tcpConnector = new TCPConnectorV6(connectionUid, serverIP, tcpOptions, serviceEndpoint.scheduler);
 		}
 		else
 		{
-			request.tcpConnector = new TCPConnectorV4(connectionUid, serverIp, tcpOptions, serviceEndpoint.scheduler);
+			request.tcpConnector = new TCPConnectorV4(connectionUid, serverIP, tcpOptions, serviceEndpoint.scheduler);
 		}
 		
 		synchronized(mutex)
 		{						
+			if(channel.isClosed())
+				return;
 			pendingRequests.add(request);
 		}
 
@@ -286,6 +290,7 @@ class TCPBinding
 	{
 		TcpRequest request = (TcpRequest)attachment;
 		TCPAcceptHandler acceptHandler = null;
+		
 		synchronized(mutex)
 		{
 			if(pendingRequests.remove(request) == false)

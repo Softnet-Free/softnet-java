@@ -66,14 +66,6 @@ class EndpointConnector
     			return;
     		isActive = false;
     		
-    		if (isConnected)
-            {
-    			isConnected = false;
-                channelMonitor.onChannelDisconnected();
-                disconnectedEventCallback.run();
-            }
-    		connectivityEventCallback.accept(new EndpointConnectivity(ConnectivityStatus.Disconnected));    		
-    		
     		if(balancerClient != null)
     		{
     			balancerClient.close();
@@ -85,6 +77,15 @@ class EndpointConnector
     			endpointChannel.close();
     			endpointChannel = null;
     		}
+
+    		if (isConnected)
+            {
+    			isConnected = false;
+                channelMonitor.onChannelDisconnected();
+                disconnectedEventCallback.run();
+            }
+    		
+    		connectivityEventCallback.accept(new EndpointConnectivity(ConnectivityStatus.Disconnected));    		    		
     	}
     }    
 

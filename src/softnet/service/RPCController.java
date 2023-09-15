@@ -268,20 +268,20 @@ class RPCController
 					{
 						int errorCode = f_appProcedure.requestHandler.execute(new RequestContext(serviceEndpoint, user, clientId, f_sessionTag), f_arguments, result, error);
 						if(errorCode == 0) {
-							channel.send(EncodeMessage_Result(transactionUid, userKind, clientId, asnResultEncoder.getEncoding()));
+							channel.send(EncodeMessage_Result(transactionUid, userKind, clientId, asnResultEncoder));
 						}
 						else {
-							channel.send(EncodeMessage_AppError(transactionUid, userKind, clientId, errorCode, asnErrorEncoder.getEncoding()));
+							channel.send(EncodeMessage_AppError(transactionUid, userKind, clientId, errorCode, asnErrorEncoder));
 						}
 					}
 					else
 					{
 						int errorCode = f_appProcedure.requestHandler.execute(new RequestContext(serviceEndpoint, user, 0, f_sessionTag), f_arguments, result, error);
 						if(errorCode == 0) {
-							channel.send(EncodeMessage_Result(transactionUid, userKind, clientId, asnResultEncoder.getEncoding()));
+							channel.send(EncodeMessage_Result(transactionUid, userKind, clientId, asnResultEncoder));
 						}
 						else {
-							channel.send(EncodeMessage_AppError(transactionUid, userKind, clientId, errorCode, asnErrorEncoder.getEncoding()));
+							channel.send(EncodeMessage_AppError(transactionUid, userKind, clientId, errorCode, asnErrorEncoder));
 						}
 					}
 				}
@@ -308,14 +308,14 @@ class RPCController
 		}		
 	}
 	
-	private SoftnetMessage EncodeMessage_Result(byte[] transactionUid, int userKind, long clientId, byte[]  resultEncoding)
+	private SoftnetMessage EncodeMessage_Result(byte[] transactionUid, int userKind, long clientId, ASNEncoder asnResultEncoder)
 	{
 		ASNEncoder asnEncoder = new ASNEncoder();
         SequenceEncoder asnSequence = asnEncoder.Sequence();
         asnSequence.OctetString(transactionUid);
         asnSequence.Int32(userKind);
         asnSequence.Int64(clientId);
-        asnSequence.OctetString(resultEncoding);
+        asnSequence.OctetString(asnResultEncoder.getEncoding());
         return MsgBuilder.Create(Constants.Service.RpcController.ModuleId, Constants.Service.RpcController.RESULT, asnEncoder);		
 	}
 	
@@ -330,7 +330,7 @@ class RPCController
         return MsgBuilder.Create(Constants.Service.RpcController.ModuleId, Constants.Service.RpcController.SOFTNET_ERROR, asnEncoder);
 	}
 	
-	private SoftnetMessage EncodeMessage_AppError(byte[] transactionUid, int userKind, long clientId, int errorCode, byte[] errorEncoding)
+	private SoftnetMessage EncodeMessage_AppError(byte[] transactionUid, int userKind, long clientId, int errorCode, ASNEncoder asnErrorEncoder)
 	{
 		ASNEncoder asnEncoder = new ASNEncoder();
         SequenceEncoder asnSequence = asnEncoder.Sequence();
@@ -338,7 +338,8 @@ class RPCController
         asnSequence.Int32(userKind);
         asnSequence.Int64(clientId);
         asnSequence.Int32(errorCode);
-        asnSequence.OctetString(errorEncoding);
+        if(asnErrorEncoder.Sequence().count() > 0)
+        	asnSequence.OctetString(1, asnErrorEncoder.getEncoding());
         return MsgBuilder.Create(Constants.Service.RpcController.ModuleId, Constants.Service.RpcController.APP_ERROR, asnEncoder);
 	}
 	
