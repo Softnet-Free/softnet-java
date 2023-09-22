@@ -253,7 +253,7 @@ class UDPController
 		byte[] requestUid = asnSequence.OctetString(16);
 		UUID connectionUid = asnSequence.OctetStringToUUID();
 		int serverId = asnSequence.Int32();
-		byte[] serverIpBytes = asnSequence.OctetString();
+		byte[] serverIPBytes = asnSequence.OctetString();
 		int virtualPort = asnSequence.Int32();
 		int userKind = asnSequence.Int32(1, 4);
 		long userId = asnSequence.Int64();
@@ -271,7 +271,7 @@ class UDPController
 			return;
 		}
 		
-		InetAddress serverIP = ByteConverter.toInetAddress(serverIpBytes);
+		InetAddress serverIP = ByteConverter.toInetAddress(serverIPBytes);
 		
 		UDPBinding udpBinding = null; 
 		synchronized(mutex)

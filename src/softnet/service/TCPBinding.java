@@ -222,9 +222,9 @@ class TCPBinding
 			}
 
 			@Override
-			public void onError(int errorCode, Object attachment)
+			public void onError(Object attachment)
 			{
-				onTcpConnectorError(errorCode, attachment);
+				onTcpConnectorError(attachment);
 			}
 		},
 		new BiAcceptor<byte[], Object>()
@@ -319,7 +319,7 @@ class TCPBinding
 		acceptHandler.accept(new RequestContext(serviceEndpoint, request.user, request.clientId, request.sessionTag), socketChannel, mode);
 	}
 
-	private void onTcpConnectorError(int errorCode, Object attachment)
+	private void onTcpConnectorError(Object attachment)
 	{
 		TcpRequest request = (TcpRequest)attachment;	
 		synchronized(mutex)
@@ -328,7 +328,7 @@ class TCPBinding
 				return;
 		}		
 		request.timeoutControlTask.cancel();
-		request.channel.send(EncodeMessage_RequestError(request.requestUid, errorCode, request.userKind, request.clientId));
+		request.channel.send(EncodeMessage_RequestError(request.requestUid, ErrorCodes.CONNECTION_ATTEMPT_FAILED, request.userKind, request.clientId));
 	}
 	
 	private SoftnetMessage EncodeMessage_AuthKey(int virtualPort, UUID connectionUid, int serverId, byte[] authKey)

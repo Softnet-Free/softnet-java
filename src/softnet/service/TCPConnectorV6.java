@@ -30,12 +30,12 @@ import softnet.*;
 import softnet.asn.*;
 import softnet.core.*;
 import softnet.exceptions.*;
-import softnet.utils.ByteConverter;
+import softnet.utils.*;
 
 public class TCPConnectorV6 implements TCPConnector
 {
 	private UUID connectionUid;
-	private InetAddress serverIp;
+	private InetAddress serverIP;
 	private TCPOptions tcpOptions;
 	private Scheduler scheduler;
 	private TCPResponseHandler responseHandler;
@@ -43,31 +43,29 @@ public class TCPConnectorV6 implements TCPConnector
 	private Object attachment;
 	
 	private Object mutex = new Object();
-	private boolean isDisposed = false;
-	
 	private MsgSocket msgSocket = null;
 	private InetSocketAddress localIEP = null;
 	private InetSocketAddress remoteIEP = null;
 	private byte[] secretKey = null;
 	private byte[] remoteSecretKey = null;
-	private ScheduledTask p2pConnectionAttemptTimeoutControlTask = null;
+	private ScheduledTask p2pConnectionAttemptTimeoutTask = null;
 
-	private SocketChannel m_controlChannel = null;
-	private ServerSocketChannel m_listenerChannel = null;
-	private SocketChannel m_p2pChannel = null;
-	private SocketChannel m_proxyChannel = null;
+	private SocketChannel controlSocketChannel = null;
+	private ServerSocketChannel listenerSocketChannel = null;
+	private SocketChannel p2pSocketChannel = null;
+	private SocketChannel proxySocketChannel = null;
 	private ArrayList<SocketChannel> acceptedChannels;
 
 	private enum ConnectorState
     {
-        P2P_MODE, P2P_HANDSHAKE, PROXY_MODE, PROXY_HANDSHAKE, COMPLETED
+		INITIAL, P2P_MODE, P2P_HANDSHAKE, PROXY_MODE, PROXY_HANDSHAKE, COMPLETED
     }
-	private ConnectorState connectorState = ConnectorState.P2P_MODE;
+	private ConnectorState connectorState = ConnectorState.INITIAL;
 	
-	public TCPConnectorV6(UUID connectionUid, InetAddress serverIp, TCPOptions tcpOptions, Scheduler scheduler)
+	public TCPConnectorV6(UUID connectionUid, InetAddress serverIP, TCPOptions tcpOptions, Scheduler scheduler)
 	{
 		this.connectionUid = connectionUid;
-		this.serverIp = serverIp;
+		this.serverIP = serverIP;
 		this.tcpOptions = tcpOptions;
 		this.scheduler = scheduler;
 		acceptedChannels = new ArrayList<SocketChannel>(2);
@@ -93,43 +91,18 @@ public class TCPConnectorV6 implements TCPConnector
 		ASNEncoder asnEncoder = new ASNEncoder();
         SequenceEncoder sequence = asnEncoder.Sequence();
         sequence.OctetString(authHash);        
-        sequence.OctetString(authKey2);   
-        
+        sequence.OctetString(authKey2);           
         msgSocket.send(MsgBuilder.Create(Constants.Proxy.TcpConnector.AUTH_HASH, asnEncoder));
 	}
 	
 	public void abort()
 	{
-		dispose();
-	}
-	
-	private void dispose()
-	{
 		synchronized(mutex)
 		{
-			if(isDisposed)
-				return;
-			
-			isDisposed = true;
-			connectorState = ConnectorState.COMPLETED;			
-
-			if(m_controlChannel != null)
-				closeChannel(m_controlChannel);
-			
-			if(m_listenerChannel != null)
-				closeServerChannel(m_listenerChannel);
-			
-			if(m_p2pChannel != null)
-				closeChannel(m_p2pChannel);
-			
-			if(acceptedChannels.size() > 0)
-			{
-				for(SocketChannel acceptedChannel: acceptedChannels)
-					closeChannel(acceptedChannel);
-			}
-			
-			if(m_proxyChannel != null)
-				closeChannel(m_proxyChannel);
+			if(connectorState == ConnectorState.COMPLETED)
+				return;			
+			connectorState = ConnectorState.COMPLETED;
+			freeResources();
 		}
 	}
 	
@@ -140,10 +113,27 @@ public class TCPConnectorV6 implements TCPConnector
 			if (connectorState == ConnectorState.COMPLETED)
                 return;
 			connectorState = ConnectorState.COMPLETED;
+			freeResources();
 		}
 		
-		dispose();
-		responseHandler.onError(ErrorCodes.CONNECTION_ATTEMPT_FAILED, attachment);
+		responseHandler.onError(attachment);
+	}
+	
+	private void freeResources()
+	{
+		closeWithNullCheck(controlSocketChannel);
+		closeWithNullCheck(p2pSocketChannel);
+		closeWithNullCheck(proxySocketChannel);
+
+		if(listenerSocketChannel != null)
+			closeServerChannel(listenerSocketChannel);
+		
+		if(acceptedChannels.size() > 0)
+		{
+			for(SocketChannel acceptedChannel: acceptedChannels)
+				closeChannel(acceptedChannel);
+			acceptedChannels.clear();
+		}	
 	}
 	
 	private void execute()
@@ -153,25 +143,21 @@ public class TCPConnectorV6 implements TCPConnector
 		{
 			synchronized(mutex)
 			{
-				if(isDisposed == false)
-				{
-					m_controlChannel = SocketChannel.open();
-					controlChannel = m_controlChannel;					
-				}
-				else return;
+				if (connectorState != ConnectorState.INITIAL)
+					return;
+				controlSocketChannel = SocketChannel.open();
+				controlChannel = controlSocketChannel;
 			}
 			
 			if (tcpOptions != null)
 			{
 				if(8196 <= tcpOptions.receiveBufferSize && tcpOptions.receiveBufferSize <= 1073741824)
-				{
 					controlChannel.setOption(StandardSocketOptions.SO_RCVBUF, tcpOptions.receiveBufferSize);
-				}
 			}
 						
 			controlChannel.setOption(StandardSocketOptions.SO_REUSEADDR, true);			
 			controlChannel.configureBlocking(true);
-			controlChannel.connect(new InetSocketAddress(serverIp, Constants.ServerPorts.TcpRzvPort));	
+			controlChannel.connect(new InetSocketAddress(serverIP, Constants.ServerPorts.TcpRzvPort));	
 			
 			localIEP = (InetSocketAddress)controlChannel.getLocalAddress();
 
@@ -182,11 +168,11 @@ public class TCPConnectorV6 implements TCPConnector
 			};
 			msgSocket.networkErrorHandler = new Acceptor<NetworkErrorSoftnetException>()
 			{
-				public void accept(NetworkErrorSoftnetException ex) { onNetworkError(ex); }
+				public void accept(NetworkErrorSoftnetException ex) { completeOnError(); }
 			};
 			msgSocket.formatErrorHandler = new Runnable()
 			{
-				public void run() { onFormatError(); }
+				public void run() { completeOnError(); }
 			};					
 			msgSocket.minLength = 1;
 			msgSocket.maxLength = 256;
@@ -197,25 +183,19 @@ public class TCPConnectorV6 implements TCPConnector
 				SocketChannel p2pChannel = null;
 				synchronized(mutex)
 				{
-					if(isDisposed == false)
-					{
-						m_p2pChannel = SocketChannel.open();
-						p2pChannel = m_p2pChannel;						
-					}
-					else return;
+					if (connectorState != ConnectorState.INITIAL)
+						return;
+					p2pSocketChannel = SocketChannel.open();
+					p2pChannel = p2pSocketChannel;
 				}
 				
 				if (tcpOptions != null)
 				{
 					if(8196 <= tcpOptions.receiveBufferSize && tcpOptions.receiveBufferSize <= 1073741824)
-					{
 						p2pChannel.setOption(StandardSocketOptions.SO_RCVBUF, tcpOptions.receiveBufferSize);
-					}
 
 					if(8196 <= tcpOptions.sendBufferSize && tcpOptions.sendBufferSize <= 1073741824)
-					{
 						p2pChannel.setOption(StandardSocketOptions.SO_SNDBUF, tcpOptions.sendBufferSize);
-					}
 				}
 				
 				p2pChannel.setOption(StandardSocketOptions.SO_REUSEADDR, true);
@@ -227,20 +207,16 @@ public class TCPConnectorV6 implements TCPConnector
 					ServerSocketChannel listenerChannel = null;
 					synchronized(mutex)
 					{
-						if(isDisposed == false)
-						{
-							m_listenerChannel = ServerSocketChannel.open();
-							listenerChannel = m_listenerChannel;						
-						}
-						else return;
+						if (connectorState != ConnectorState.INITIAL)
+							return;
+						listenerSocketChannel = ServerSocketChannel.open();
+						listenerChannel = listenerSocketChannel;						
 					}
 		
 					if (tcpOptions != null)
 					{
 						if(8196 <= tcpOptions.receiveBufferSize && tcpOptions.receiveBufferSize <= 1073741824)
-						{
 							listenerChannel.setOption(StandardSocketOptions.SO_RCVBUF, tcpOptions.receiveBufferSize);
-						}	
 					}
 					
 					listenerChannel.setOption(StandardSocketOptions.SO_REUSEADDR, true);
@@ -258,6 +234,13 @@ public class TCPConnectorV6 implements TCPConnector
 				}
 				catch(IOException | UnsupportedOperationException ex) {}
 			
+				synchronized(mutex)
+				{
+					if (connectorState != ConnectorState.INITIAL)
+						return;
+					connectorState = ConnectorState.P2P_MODE;
+				}
+
 				msgSocket.send(EncodeMessage_ServiceP2P());
 			}
 			catch(IOException | UnsupportedOperationException ex)
@@ -267,15 +250,13 @@ public class TCPConnectorV6 implements TCPConnector
 		}
 		catch(UnsupportedOperationException ex)
 		{
-			if(controlChannel != null)
-				closeChannel(controlChannel);
+			closeWithNullCheck(controlChannel);
 			onP2PSetup2Failed();
 		}
 		catch(IOException ex)
 		{			
-			if(controlChannel != null)
-				closeChannel(controlChannel);
-            responseHandler.onError(ErrorCodes.CONNECTION_ATTEMPT_FAILED, attachment);
+			closeWithNullCheck(controlChannel);
+            responseHandler.onError(attachment);
 		}
 	}
 	
@@ -283,11 +264,10 @@ public class TCPConnectorV6 implements TCPConnector
 	{
 		synchronized(mutex)
 		{
-			if(connectorState != ConnectorState.P2P_MODE)
+			if (connectorState != ConnectorState.INITIAL)
 				return;
 			connectorState = ConnectorState.PROXY_MODE;
-		}
-		
+		}		
 		msgSocket.send(EncodeMessage_ServiceProxy());
 	}
 	
@@ -298,24 +278,22 @@ public class TCPConnectorV6 implements TCPConnector
 		{
 			synchronized(mutex)
 			{
-				if(connectorState != ConnectorState.P2P_MODE)
+				if (connectorState != ConnectorState.INITIAL)
 					return;				
 				connectorState = ConnectorState.PROXY_MODE;
 				
-				m_controlChannel = SocketChannel.open();
-				controlChannel = m_controlChannel;
+				controlSocketChannel = SocketChannel.open();
+				controlChannel = controlSocketChannel;
 			}
 			
 			if (tcpOptions != null)
 			{
 				if(8196 <= tcpOptions.receiveBufferSize && tcpOptions.receiveBufferSize <= 1073741824)
-				{
 					controlChannel.setOption(StandardSocketOptions.SO_RCVBUF, tcpOptions.receiveBufferSize);
-				}
 			}
 						
 			controlChannel.configureBlocking(true);
-			controlChannel.connect(new InetSocketAddress(serverIp, Constants.ServerPorts.TcpRzvPort));	
+			controlChannel.connect(new InetSocketAddress(serverIP, Constants.ServerPorts.TcpRzvPort));	
 			
 			msgSocket = new MsgSocket(controlChannel);
 			msgSocket.messageReceivedHandler	= new Acceptor<byte[]>()
@@ -324,11 +302,11 @@ public class TCPConnectorV6 implements TCPConnector
 			};
 			msgSocket.networkErrorHandler = new Acceptor<NetworkErrorSoftnetException>()
 			{
-				public void accept(NetworkErrorSoftnetException ex) { onNetworkError(ex); }
+				public void accept(NetworkErrorSoftnetException ex) { completeOnError(); }
 			};
 			msgSocket.formatErrorHandler = new Runnable()
 			{
-				public void run() { onFormatError(); }
+				public void run() { completeOnError(); }
 			};					
 			msgSocket.minLength = 1;
 			msgSocket.maxLength = 256;
@@ -336,11 +314,10 @@ public class TCPConnectorV6 implements TCPConnector
 			
 			msgSocket.send(EncodeMessage_ServiceProxy());
 		}
-		catch(IOException | IllegalArgumentException | SecurityException ex)
+		catch(IOException e)
 		{			
-			if(controlChannel != null)
-				closeChannel(controlChannel);
-            responseHandler.onError(ErrorCodes.CONNECTION_ATTEMPT_FAILED, attachment);
+			closeWithNullCheck(controlChannel);
+            responseHandler.onError(attachment);
 		}
 	}
 	
@@ -372,14 +349,10 @@ public class TCPConnectorV6 implements TCPConnector
 					}
 				}
 			}
-			catch(ClosedChannelException e)
-			{
+			catch(ClosedChannelException e) {
 				return;
 			}
-			catch(IOException | SecurityException e)
-			{
-				System.out.println(String.format("[ListenerChannel accepting] ErrorType: %s. Error text: %s", e.getClass().toString(), e.getMessage()));
-			}
+			catch(IOException e){}
 		}		
 	}
 
@@ -404,35 +377,32 @@ public class TCPConnectorV6 implements TCPConnector
 			byte[] receivedRemoteSecretKey = bbReceivedRemoteSecretKey.array();
 			if(java.util.Arrays.equals(receivedRemoteSecretKey, remoteSecretKey) == false)
 				return;
-		}
-		catch(IOException ex)
-		{
-			return;
-		}
-		
-		synchronized(mutex)
-        {
-            if (connectorState != ConnectorState.P2P_HANDSHAKE)
-                return;
-            connectorState = ConnectorState.COMPLETED;                
-            p2pConnectionAttemptTimeoutControlTask.cancel();
-            acceptedChannels.remove(acceptedChannel);
-        }
+			
+			synchronized(mutex)
+	        {
+	            if (connectorState != ConnectorState.P2P_HANDSHAKE)
+	                return;
+	            connectorState = ConnectorState.COMPLETED;                
+	            p2pConnectionAttemptTimeoutTask.cancel();
+	            acceptedChannels.remove(acceptedChannel);
+	            freeResources();
+	        }
 
-		dispose();
-        responseHandler.onSuccess(acceptedChannel, ConnectionMode.P2P, attachment);
+	        responseHandler.onSuccess(acceptedChannel, ConnectionMode.P2P, attachment);			
+		}
+		catch(IOException ex) {}
 	}
 	
 	private void tryP2PConnection()
 	{
-		SocketChannel p2pChannel = null;
 		try
 		{
+			SocketChannel p2pChannel = null;
 			synchronized(mutex)
 			{
 				if(connectorState != ConnectorState.P2P_HANDSHAKE)
 					return;
-				p2pChannel = m_p2pChannel;				
+				p2pChannel = p2pSocketChannel;				
 			}
 
 			p2pChannel.connect(remoteIEP);
@@ -452,23 +422,20 @@ public class TCPConnectorV6 implements TCPConnector
 			byte[] receivedRemoteSecretKey = bbReceivedRemoteSecretKey.array();
 			if(java.util.Arrays.equals(receivedRemoteSecretKey, remoteSecretKey) == false)
 				return;
-		}
-		catch(IOException e)
-		{
-			return;
-		}
-		
-		synchronized(mutex)
-        {
-            if (connectorState != ConnectorState.P2P_HANDSHAKE)
-                return;
-            connectorState = ConnectorState.COMPLETED;
-            p2pConnectionAttemptTimeoutControlTask.cancel();
-            m_p2pChannel = null;
-        }
+			
+			synchronized(mutex)
+	        {
+	            if (connectorState != ConnectorState.P2P_HANDSHAKE)
+	                return;
+	            connectorState = ConnectorState.COMPLETED;
+	            p2pConnectionAttemptTimeoutTask.cancel();
+	            p2pSocketChannel = null;
+	            freeResources();
+	        }
 
-		dispose();
-        responseHandler.onSuccess(p2pChannel, ConnectionMode.P2P, attachment);
+	        responseHandler.onSuccess(p2pChannel, ConnectionMode.P2P, attachment);
+		}
+		catch(IOException e) {}
 	}
 	
 	private void onP2PConnectionAttemptFailed()
@@ -479,16 +446,14 @@ public class TCPConnectorV6 implements TCPConnector
                 return;
             connectorState = ConnectorState.PROXY_MODE;
 
-            if(m_listenerChannel != null)
-			{
-				closeServerChannel(m_listenerChannel);
-				m_listenerChannel = null;
+            if(listenerSocketChannel != null) {
+				closeServerChannel(listenerSocketChannel);
+				listenerSocketChannel = null;
 			}
 			
-			if(m_p2pChannel != null)
-			{
-				closeChannel(m_p2pChannel);
-				m_p2pChannel = null;
+			if(p2pSocketChannel != null) {
+				closeChannel(p2pSocketChannel);
+				p2pSocketChannel = null;
 			}
 			
             if(acceptedChannels.size() > 0)
@@ -504,34 +469,30 @@ public class TCPConnectorV6 implements TCPConnector
 	
 	private void tryProxyConnection(int serverPort)
 	{
-		SocketChannel proxyChannel = null;
 		try
 		{
+			SocketChannel proxyChannel = null;
 			synchronized(mutex)
 			{
-				if(connectorState == ConnectorState.COMPLETED || connectorState == ConnectorState.PROXY_HANDSHAKE)
+				if(!(connectorState == ConnectorState.PROXY_MODE || connectorState == ConnectorState.P2P_MODE))
 					return;
 				connectorState = ConnectorState.PROXY_HANDSHAKE;				
 				
-				m_proxyChannel = SocketChannel.open();
-				proxyChannel = m_proxyChannel;
+				proxySocketChannel = SocketChannel.open();
+				proxyChannel = proxySocketChannel;
 			}
 
 			if (tcpOptions != null)
 			{
 				if(8196 <= tcpOptions.receiveBufferSize && tcpOptions.receiveBufferSize <= 1073741824)
-				{
 					proxyChannel.setOption(StandardSocketOptions.SO_RCVBUF, tcpOptions.receiveBufferSize);
-				}
 				
 				if(8196 <= tcpOptions.sendBufferSize && tcpOptions.sendBufferSize <= 1073741824)
-				{
 					proxyChannel.setOption(StandardSocketOptions.SO_SNDBUF, tcpOptions.sendBufferSize);
-				}
 			}
 			
 			proxyChannel.configureBlocking(true);
-			proxyChannel.connect(new InetSocketAddress(serverIp, serverPort));
+			proxyChannel.connect(new InetSocketAddress(serverIP, serverPort));
 			
 			byte[] header = new byte[17];
 			header[0] = Constants.Proxy.TcpProxy.SERVICE_PROXY_ENDPOINT;
@@ -546,34 +507,33 @@ public class TCPConnectorV6 implements TCPConnector
 			while(bbHeader.hasRemaining())
 			{
 				int bytesRead = proxyChannel.read(bbHeader);
-				if(bytesRead == -1)
-					throw new IOException();
-			}			
+				if(bytesRead == -1) {
+					completeOnError();
+					return;
+				}
+			}
+			
+			synchronized(mutex)
+	        {
+	            if (connectorState != ConnectorState.PROXY_HANDSHAKE)
+	                return;
+	            connectorState = ConnectorState.COMPLETED;                
+	            proxySocketChannel = null;
+	            freeResources();
+	        }
+			
+	        responseHandler.onSuccess(proxyChannel, ConnectionMode.Proxy, attachment);			
 		}
-		catch(IOException ex)
-		{
+		catch(IOException ex) {
 			completeOnError();
-			return;
-		}
-		
-		synchronized(mutex)
-        {
-            if (connectorState != ConnectorState.PROXY_HANDSHAKE)
-                return;
-            connectorState = ConnectorState.COMPLETED;                
-            m_proxyChannel = null;
-        }
-		
-		dispose();
-        responseHandler.onSuccess(proxyChannel, ConnectionMode.Proxy, attachment);
+		}		
 	}
 	
 	private void ProcessMessage_AuthKey(byte[] message) throws AsnException
 	{
 		SequenceDecoder sequence = ASNDecoder.Sequence(message, 1);            
 		byte[] authKey = sequence.OctetString(20);
-        sequence.end();
-        
+        sequence.end();        
         authenticationHandler.accept(authKey, attachment);
 	}
 	
@@ -606,12 +566,11 @@ public class TCPConnectorV6 implements TCPConnector
 				}
 			}
 			
-			Acceptor<Object> acceptor = new Acceptor<Object>()
-			{
+			Acceptor<Object> acceptor = new Acceptor<Object>() {
 				public void accept(Object noData) { onP2PConnectionAttemptFailed(); }
 			};
-			p2pConnectionAttemptTimeoutControlTask = new ScheduledTask(acceptor, this);
-			scheduler.add(p2pConnectionAttemptTimeoutControlTask, Constants.TcpP2PConnectionAttemptTimeoutSeconds);
+			p2pConnectionAttemptTimeoutTask = new ScheduledTask(acceptor, this);
+			scheduler.add(p2pConnectionAttemptTimeoutTask, Constants.TcpP2PConnectionAttemptTimeoutSeconds);
 		}
 		
 		Thread thread = new Thread()
@@ -638,11 +597,6 @@ public class TCPConnectorV6 implements TCPConnector
 		thread.start();	
 	}
 
-	private void ProcessMessage_Error(byte[] message) throws AsnException
-	{
-		completeOnError();
-	}
-	
 	private SoftnetMessage EncodeMessage_ServiceP2P()
 	{
 		ASNEncoder asnEncoder = new ASNEncoder();
@@ -678,7 +632,7 @@ public class TCPConnectorV6 implements TCPConnector
 			}
 			else if(messageTag == Constants.Proxy.TcpConnector.ERROR)
 			{
-				ProcessMessage_Error(message);
+				completeOnError();
 			}
 			else
 			{
@@ -691,32 +645,30 @@ public class TCPConnectorV6 implements TCPConnector
 		}
 	}
 
-	private void onNetworkError(NetworkErrorSoftnetException ex)
-	{
-		completeOnError();
-	}
-
-	private void onFormatError()
-	{
-		completeOnError();
-	}	
-	
-	private void closeChannel(SocketChannel channel)
-	{
-		try
-		{
-			channel.close();
-		}
-		catch(IOException e) {}
-	}
-	
 	private void closeServerChannel(ServerSocketChannel channel)
 	{
-		try
-		{
+		try	{
 			channel.close();
 		}
 		catch(IOException e) {}
+	}
+
+	private void closeChannel(SocketChannel channel)
+	{
+		try	{
+			channel.close();
+		}
+		catch(IOException e) {}
+	}
+	
+	private void closeWithNullCheck(SocketChannel channel)
+	{
+		if(channel != null) {
+			try	{
+				channel.close();
+			}
+			catch(IOException e) {}
+		}
 	}
 	
 	class ClientAuthenticationThread extends Thread

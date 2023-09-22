@@ -34,26 +34,24 @@ class UDPConnectorV6 implements UDPConnector, STaskContext
 	private UDPResponseHandler responseHandler;
 	private BiAcceptor<byte[], Object> authenticationHandler;
 	private Object attachment;
-	
-	private Object mutex = new Object();
-	private boolean is_disposed = false;
-	
+
+	private Object mutex = new Object();	
 	private MsgSocket msgSocket = null;
 	private InetAddress localIP = null;
-	private DatagramSocket m_dgmSocket = null;
+	private DatagramSocket datagramSocket = null;
 	private boolean isEndpointEstablished = false;
 	private ScheduledContextTask endpointEstablishmentTask = null;
 	private byte[] thisEndpointUid = null;
 	private byte[] remoteEndpointUid = null;
-	private InetSocketAddress remoteIEP = null;
+	private InetSocketAddress remoteSocketAddress = null;
 	private boolean isP2PInputHolePunched = false;
 	private boolean isP2POutputHolePunched = false;
-	private ScheduledContextTask p2pHolePunchTask = null;
+	private boolean isProxyConnectionCreated = false;
+	private boolean isTimeoutExpired = false;
 	
-	private enum ConnectorState
-    {
-        INITIAL, P2P_MODE, P2P_HANDSHAKE, PROXY_MODE, COMPLETED
-    }
+	private enum ConnectorState {
+        INITIAL, P2P_HANDSHAKE, COMPLETED
+	}
 	private ConnectorState connectorState = ConnectorState.INITIAL;
 	
 	public UDPConnectorV6(byte[] connectionUid, InetAddress serverIP, Scheduler scheduler)
@@ -90,43 +88,41 @@ class UDPConnectorV6 implements UDPConnector, STaskContext
 	
 	public boolean isClosed()
 	{
-		return is_disposed;
+		return connectorState == ConnectorState.COMPLETED;
 	}
 	
 	public void abort()
 	{
-		dispose();
-	}
-	
-	private void dispose()
-	{
-		synchronized(mutex)
-		{
-			if(is_disposed)
-				return;
-			
-			is_disposed = true;
-			connectorState = ConnectorState.COMPLETED;			
-
-			if(msgSocket != null)
-				msgSocket.close();
-			
-			if(m_dgmSocket != null)
-				m_dgmSocket.close();			
-		}
-	}
-	
-	private void completeOnError()
-	{		
 		synchronized(mutex)
 		{
 			if (connectorState == ConnectorState.COMPLETED)
-                return;
-			connectorState = ConnectorState.COMPLETED;
+				return;
+			connectorState = ConnectorState.COMPLETED;	
+			
+			if(msgSocket != null)
+				msgSocket.close();
+			
+			if(datagramSocket != null)
+				datagramSocket.close();			
 		}
+	}
 		
-		dispose();
-		responseHandler.onError(new ResponseContext(null, null, attachment), new ConnectionAttemptFailedSoftnetException());
+	private void completeOnError()
+	{		
+		synchronized(mutex)
+		{			
+			if (connectorState == ConnectorState.COMPLETED)
+				return;
+			connectorState = ConnectorState.COMPLETED;
+			
+			if(msgSocket != null)
+				msgSocket.close();
+			
+			if(datagramSocket != null)
+				datagramSocket.close();
+		}		
+		
+		responseHandler.onError(new ResponseContext(null, null, attachment), null);
 	}
 	
 	private void execute()
@@ -136,12 +132,10 @@ class UDPConnectorV6 implements UDPConnector, STaskContext
 		{
 			synchronized(mutex)
 			{
-				if(is_disposed == false)
-				{
-					controlChannel = SocketChannel.open();
-					msgSocket = new MsgSocket(controlChannel);
-				}
-				else return;
+				if(connectorState != ConnectorState.INITIAL)
+					return;
+				controlChannel = SocketChannel.open();
+				msgSocket = new MsgSocket(controlChannel);
 			}
 			
 			controlChannel.configureBlocking(true);
@@ -155,23 +149,23 @@ class UDPConnectorV6 implements UDPConnector, STaskContext
 			};
 			msgSocket.networkErrorHandler = new Acceptor<NetworkErrorSoftnetException>()
 			{
-				public void accept(NetworkErrorSoftnetException ex) { onNetworkError(ex); }
+				public void accept(NetworkErrorSoftnetException ex) { completeOnError(); }
 			};
 			msgSocket.formatErrorHandler = new Runnable()
 			{
-				public void run() { onFormatError(); }
+				public void run() { completeOnError(); }
 			};					
 			msgSocket.minLength = 1;
 			msgSocket.maxLength = 256;
 			msgSocket.start();
 			
-			msgSocket.send(EncodeMessage_Client());
+			msgSocket.send(EncodeMessage_ClientEndpoint());
 		}
 		catch(IOException ex)
 		{			
 			if(controlChannel != null)
 				closeChannel(controlChannel);
-            responseHandler.onError(new ResponseContext(null, null, attachment), new ConnectionAttemptFailedSoftnetException());
+            responseHandler.onError(new ResponseContext(null, null, attachment), null);
 		}
 	}
 	
@@ -180,17 +174,16 @@ class UDPConnectorV6 implements UDPConnector, STaskContext
 		SequenceDecoder sequence = ASNDecoder.Sequence(message, 1);            
 		byte[] authKey = sequence.OctetString(20);
 		byte[] endpointUid = sequence.OctetString(16);
-        sequence.end();
+		sequence.end();
 
-        synchronized(mutex)
+		synchronized(mutex)
 		{
 			if (connectorState != ConnectorState.INITIAL)
-                return;
-			connectorState = ConnectorState.P2P_MODE;
+				return;
 			thisEndpointUid = endpointUid;			
 		}
         
-        Thread thread = new Thread()
+		Thread thread = new Thread()
 		{
 		    public void run(){
 		    	udpExecute();
@@ -198,7 +191,7 @@ class UDPConnectorV6 implements UDPConnector, STaskContext
 		};
 		thread.start();
         
-        authenticationHandler.accept(authKey, attachment);
+		authenticationHandler.accept(authKey, attachment);
 	}
 	
 	private void udpExecute()
@@ -208,13 +201,11 @@ class UDPConnectorV6 implements UDPConnector, STaskContext
 		{
 			synchronized(mutex)
 			{
-				if(is_disposed == false)
-				{
-					m_dgmSocket = new DatagramSocket(new InetSocketAddress(localIP, 0));
-					dgmSocket = m_dgmSocket;
-					
-				}
-				else return; 
+				if(connectorState == ConnectorState.COMPLETED)
+					return;
+				datagramSocket = new DatagramSocket(new InetSocketAddress(localIP, 0));
+				datagramSocket.setSoTimeout(100);
+				dgmSocket = datagramSocket;				
 			}
 		}
 		catch(IOException ex)
@@ -222,86 +213,116 @@ class UDPConnectorV6 implements UDPConnector, STaskContext
 			completeOnError();
 			return;
 		}
-				
-		sendAttachToConnectorCommand(1);
 		
-		while(connectorState !=  ConnectorState.COMPLETED)
-		{
-			byte[] data = new byte[18];
-			DatagramPacket packet = new DatagramPacket(data, 18);
-			
-			try
-			{
-				dgmSocket.receive(packet);
-			}
-			catch(IOException ex)
-			{
-				completeOnError();
-				return;
-			}
-			
-			if(packet.getLength() == 17)
-			{
-				byte messageTag = data[0];
-				if(messageTag == Constants.Proxy.UdpEndpoint.ATTACHED)
-				{
-					if(ByteArrays.equals(data, 1, thisEndpointUid, 0, 16))
+		sendEndpointInfo(1);
+		
+		byte[] data = new byte[18];
+		DatagramPacket packet = new DatagramPacket(data, 18);
+
+		try {
+			while(connectorState !=  ConnectorState.COMPLETED)
+			{			
+				try {
+					packet.setLength(18);
+					dgmSocket.receive(packet);
+					
+					if(packet.getLength() == 17)
 					{
-						isEndpointEstablished = true;
-						if(endpointEstablishmentTask != null)
-							endpointEstablishmentTask.complete();
-					}
-				}
-				else if(messageTag == Constants.Proxy.UdpEndpoint.P2P_HOLE_PUNCH)
-				{
-					if(remoteEndpointUid != null && ByteArrays.equals(data, 1, remoteEndpointUid, 0, 16))
-					{
-						synchronized(mutex)
+						byte messageTag = data[0];
+						if(messageTag == Constants.Proxy.UdpEndpoint.P2P_HOLE_PUNCH)
 						{
-							if(isP2PInputHolePunched)
-								continue;
+							synchronized(mutex)
+							{
+								if(isP2PInputHolePunched)
+									continue;									
+								
+								if(ByteArrays.equals(data, 1, remoteEndpointUid, 0, 16) == false)
+									continue;									
+
+								isP2PInputHolePunched = true;
+								remoteSocketAddress = (InetSocketAddress)packet.getSocketAddress();	
+
+								if(!isP2POutputHolePunched)
+									continue;
+								
+								connectorState =  ConnectorState.COMPLETED;
+								datagramSocket = null;
+							}
 							
-							isP2PInputHolePunched = true;
-							remoteIEP = (InetSocketAddress)packet.getSocketAddress();
-							
-							msgSocket.send(MsgBuilder.Create(Constants.Proxy.UdpConnector.P2P_HOLE_PUNCHED));
-							
-							if(connectorState != ConnectorState.P2P_HANDSHAKE || isP2POutputHolePunched == false)
-								continue;
-							
-							connectorState = ConnectorState.COMPLETED;								
+							msgSocket.send(MsgBuilder.Create(Constants.Proxy.UdpConnector.P2P_CONNECTION_CREATED));
 							msgSocket.shutdownOutput();
-							m_dgmSocket = null;
-						}
-						
-						dispose();
-						responseHandler.onSuccess(new ResponseContext(null, null, attachment), dgmSocket, remoteIEP, ConnectionMode.P2P);
-						return;
+							msgSocket.close();
+
+							dgmSocket.setSoTimeout(0);
+							responseHandler.onSuccess(new ResponseContext(null, null, attachment), dgmSocket, remoteSocketAddress, ConnectionMode.P2P);
+							return;							
+						}						
 					}
 				}
-				else if(messageTag == Constants.Proxy.UdpEndpoint.PROXY_ESTABLISHED)
+				catch (SocketTimeoutException e)
 				{
-					if(ByteArrays.equals(data, 1, thisEndpointUid, 0, 16))
+					if(isP2POutputHolePunched && isP2PInputHolePunched)
 					{
 						synchronized(mutex)
 						{
 							if(connectorState == ConnectorState.COMPLETED)
-								return;
-							connectorState = ConnectorState.COMPLETED;
-							msgSocket.shutdownOutput();
-							m_dgmSocket = null;
+								continue;							
+							connectorState =  ConnectorState.COMPLETED;
+							datagramSocket = null;
 						}
 						
-						dispose();
+						msgSocket.send(MsgBuilder.Create(Constants.Proxy.UdpConnector.P2P_CONNECTION_CREATED));
+						msgSocket.shutdownOutput();
+						msgSocket.close();
+
+						dgmSocket.setSoTimeout(0);
+						responseHandler.onSuccess(new ResponseContext(null, null, attachment), dgmSocket, remoteSocketAddress, ConnectionMode.P2P);
+						return;							
+					}
+					
+					if(isProxyConnectionCreated)
+					{
+						synchronized(mutex)
+						{
+							if(connectorState == ConnectorState.COMPLETED)
+								continue;							
+							connectorState =  ConnectorState.COMPLETED;
+							datagramSocket = null;
+						}
+						
+						msgSocket.shutdownOutput();
+						msgSocket.close();
+						
+						dgmSocket.setSoTimeout(0);
 						responseHandler.onSuccess(new ResponseContext(null, null, attachment), dgmSocket, new InetSocketAddress(serverIP, Constants.ServerPorts.UdpRzvPort), ConnectionMode.Proxy);
+						return;
+					}
+					
+					if(isTimeoutExpired)
+					{
+						synchronized(mutex)
+						{
+							if(connectorState == ConnectorState.COMPLETED)
+								continue;
+							connectorState =  ConnectorState.COMPLETED;
+						}
+						
+						dgmSocket.close();
+						msgSocket.shutdownOutput();
+						msgSocket.close();
+						
+						responseHandler.onError(new ResponseContext(null, null, attachment), null);
 						return;
 					}
 				}
 			}
-		}		
+		}
+		catch(IOException e) {			
+			completeOnError();
+		}	
 	}
-	
-	private void sendAttachToConnectorCommand(Object state)
+		
+	private void sendEndpointInfo(Object state)
 	{
 		if(isEndpointEstablished)
 			return;
@@ -311,40 +332,39 @@ class UDPConnectorV6 implements UDPConnector, STaskContext
 		{
 			if(connectorState == ConnectorState.COMPLETED)
 				return;
-			dgmSocket = m_dgmSocket;
+			dgmSocket = datagramSocket;
 		}
 
 		try
 		{
-			byte[] data = new byte[17];
-			data[0] = Constants.Proxy.UdpEndpoint.ATTACH_TO_CONNECTOR;
-			System.arraycopy(thisEndpointUid, 0, data, 1, 16);			
+			byte[] data = new byte[23];
+			data[0] = Constants.Proxy.UdpEndpoint.ENDPOINT_INFO;
+			System.arraycopy(thisEndpointUid, 0, data, 1, 16);
+			System.arraycopy(localIP.getAddress(), 0, data, 17, 4);
+			ByteConverter.writeAsUInt16(dgmSocket.getLocalPort(), data, 21);
 
-			DatagramPacket packet = new DatagramPacket(data, 17, serverIP, Constants.ServerPorts.UdpRzvPort);
+			DatagramPacket packet = new DatagramPacket(data, 23, serverIP, Constants.ServerPorts.UdpRzvPort);
 			dgmSocket.send(packet);
 
 			int packetRepeatPeriod = (int)state;
 			if(packetRepeatPeriod <= 8)
 			{
-				Acceptor<Object> acceptor = new Acceptor<Object>()
-				{
-					public void accept(Object state) { sendAttachToConnectorCommand(state); }
+				Acceptor<Object> acceptor = new Acceptor<Object>() {
+					public void accept(Object state) { sendEndpointInfo(state); }
 				};
 				endpointEstablishmentTask = new ScheduledContextTask(acceptor, this, packetRepeatPeriod * 2);
 				scheduler.add(endpointEstablishmentTask, packetRepeatPeriod);
 			}
 			else
 			{
-				Acceptor<Object> acceptor = new Acceptor<Object>()
-				{
+				Acceptor<Object> acceptor = new Acceptor<Object>() {
 					public void accept(Object noData) { onEndpointEstablishmentFailed(); }
 				};
 				endpointEstablishmentTask = new ScheduledContextTask(acceptor, this, null);					
 				scheduler.add(endpointEstablishmentTask, 4);
 			}
 		}
-		catch(IOException ex)
-		{
+		catch(IOException ex) {
 			completeOnError();			
 		}
 	}
@@ -353,72 +373,54 @@ class UDPConnectorV6 implements UDPConnector, STaskContext
 	{
 		synchronized(mutex)
 		{
-			if (isEndpointEstablished || connectorState != ConnectorState.P2P_MODE)
-                return;
+			if (isEndpointEstablished || connectorState == ConnectorState.COMPLETED)
+				return;
 			connectorState = ConnectorState.COMPLETED;
+			msgSocket.close();
+			datagramSocket.close();
 		}
-		
-		dispose();
-		responseHandler.onError(new ResponseContext(null, null, attachment), new ConnectionAttemptFailedSoftnetException());
+
+		responseHandler.onError(new ResponseContext(null, null, attachment), null);
 	}
 		
 	private void sendP2PHolePunch(Object state)
 	{
 		DatagramSocket dgmSocket = null;
-		InetSocketAddress ipEndpoint = null;
+		InetSocketAddress remoteIEP = null;
 		synchronized(mutex)
 		{
 			if(connectorState != ConnectorState.P2P_HANDSHAKE)
 				return;
-			dgmSocket = m_dgmSocket;
-			ipEndpoint = remoteIEP;
+			dgmSocket = datagramSocket;
+			remoteIEP = remoteSocketAddress;
 		}
-		
+				
 		try
 		{
 			byte[] data = new byte[17];
 			data[0] = Constants.Proxy.UdpEndpoint.P2P_HOLE_PUNCH;
 			System.arraycopy(thisEndpointUid, 0, data, 1, 16);
 
-			DatagramPacket packet = new DatagramPacket(data, 17, ipEndpoint);
+			DatagramPacket packet = new DatagramPacket(data, 17, remoteIEP);
 			dgmSocket.send(packet);
 			
 			int packetCounter = (int)state;
-			if(packetCounter == 1)
+			if(packetCounter <= 3)
 			{
-				Acceptor<Object> acceptor = new Acceptor<Object>()
-				{
+				Acceptor<Object> acceptor = new Acceptor<Object>() {
 					public void accept(Object state) { sendP2PHolePunch(state); }
 				};
-				p2pHolePunchTask = new ScheduledContextTask(acceptor, this, 2);
-				scheduler.add(p2pHolePunchTask, 1); // send the second packet in a second
-			}
-			else if(packetCounter == 2)
-			{
-				Acceptor<Object> acceptor = new Acceptor<Object>()
-				{
-					public void accept(Object state) { sendP2PHolePunch(state); }
-				};
-				p2pHolePunchTask = new ScheduledContextTask(acceptor, this, 3);
-				scheduler.add(p2pHolePunchTask, 2); // send the third packet in two seconds
+				packetCounter++;
+				ScheduledContextTask task = new ScheduledContextTask(acceptor, this, packetCounter);
+				scheduler.add(task, 1);
 			}			
 		}
 		catch(IOException ex) {}
 	}
 
-	private void onP2PConnectionAttemptFailed()
+	private void onTimeoutExpired()
 	{
-		synchronized(mutex)
-        {
-            if (connectorState != ConnectorState.P2P_HANDSHAKE)
-                return;
-            connectorState = ConnectorState.PROXY_MODE;
-            
-            if(p2pHolePunchTask != null)
-            	p2pHolePunchTask.cancel();
-        }
-		
-		msgSocket.send(MsgBuilder.Create(Constants.Proxy.UdpConnector.P2P_FAILED));
+		isTimeoutExpired = true;
 	}
 	
 	private void ProcessMessage_CreateP2PConnection(byte[] message) throws AsnException, UnknownHostException
@@ -432,64 +434,47 @@ class UDPConnectorV6 implements UDPConnector, STaskContext
 		System.arraycopy(iepBytes, 0, ipBytes, 0, 16);		
 		InetAddress ip = InetAddress.getByAddress(ipBytes);
 		int port = ByteConverter.toInt32FromUInt16(iepBytes, 16);
-		InetSocketAddress ipEndpoint = new InetSocketAddress(ip, port);
+		InetSocketAddress socketAddress = new InetSocketAddress(ip, port);
 		
 		synchronized(mutex)
 		{
-			if (connectorState != ConnectorState.P2P_MODE)
-                return;
+			if (connectorState != ConnectorState.INITIAL)
+				return;
 			connectorState = ConnectorState.P2P_HANDSHAKE;
 			
 			remoteEndpointUid = endpointUid;
-			remoteIEP = ipEndpoint;
+			remoteSocketAddress = socketAddress;
+						
+			isEndpointEstablished = true;
+			if(endpointEstablishmentTask != null)
+				endpointEstablishmentTask.complete();
 		}
 		
-		Acceptor<Object> acceptor = new Acceptor<Object>()
-		{
-			public void accept(Object noData) { onP2PConnectionAttemptFailed(); }
+		Acceptor<Object> acceptor = new Acceptor<Object>() {
+			public void accept(Object noData) { onTimeoutExpired(); }
 		};
 		ScheduledContextTask task = new ScheduledContextTask(acceptor, this, null);
-		scheduler.add(task, Constants.UdpP2PConnectionAttemptTimeoutSeconds);
+		scheduler.add(task, Constants.UdpP2PConnectionAttemptTimeoutSeconds + 2);
         
 		sendP2PHolePunch(1);
 	}
 	
 	private void ProcessMessage_P2PHolePunched()
 	{
-		DatagramSocket dgmSocket = null;
-		synchronized(mutex)
-		{
-			if(connectorState != ConnectorState.P2P_HANDSHAKE)
-				return;
-			
-			isP2POutputHolePunched = true;						
-			if(isP2PInputHolePunched == false)
-				return;
-			
-			connectorState = ConnectorState.COMPLETED;
-			msgSocket.shutdownOutput();
-			dgmSocket = m_dgmSocket;
-			m_dgmSocket = null;
-		}
-		
-		dispose();
-
-		final DatagramSocket f_dgmSocket = dgmSocket;
-		Thread thread = new Thread()
-		{
-		    public void run(){
-				responseHandler.onSuccess(new ResponseContext(null, null, attachment), f_dgmSocket, remoteIEP, ConnectionMode.P2P);
-		    }
-		};
-		thread.start();		
+		isP2POutputHolePunched = true;
 	}
 	
-	private SoftnetMessage EncodeMessage_Client()
+	private void ProcessMessage_ProxyConnectionCreated()
+	{
+		isProxyConnectionCreated = true;
+	}
+	
+	private SoftnetMessage EncodeMessage_ClientEndpoint()
 	{
 		ASNEncoder asnEncoder = new ASNEncoder();
         SequenceEncoder sequence = asnEncoder.Sequence();
         sequence.OctetString(connectionUid);
-        return MsgBuilder.Create(Constants.Proxy.UdpConnector.CLIENT, asnEncoder);
+        return MsgBuilder.Create(Constants.Proxy.UdpConnector.CLIENT_ENDPOINT, asnEncoder);
 	}
 	
 	private void onMessageReceived(byte[] message)
@@ -509,6 +494,14 @@ class UDPConnectorV6 implements UDPConnector, STaskContext
 			{
 				ProcessMessage_P2PHolePunched();
 			}
+			else if(messageTag == Constants.Proxy.UdpConnector.PROXY_CONNECTION_CREATED)
+			{
+				ProcessMessage_ProxyConnectionCreated();
+			}
+			else if(messageTag == Constants.Proxy.UdpConnector.ERROR)
+			{
+				completeOnError();
+			}
 			else
 			{
 				completeOnError();
@@ -519,21 +512,10 @@ class UDPConnectorV6 implements UDPConnector, STaskContext
 			completeOnError();
 		}
 	}
-	
-	private void onNetworkError(NetworkErrorSoftnetException ex)
-	{
-		completeOnError();
-	}
-
-	private void onFormatError()
-	{
-		completeOnError();
-	}
-	
+		
 	private void closeChannel(SocketChannel channel)
 	{
-		try
-		{
+		try	{
 			channel.close();
 		}
 		catch(IOException e) {}

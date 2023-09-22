@@ -380,22 +380,28 @@ public class Constants
     {
         public static class TcpConnector        
         {
-        	// Output
+        	// Client Output
         	public static final byte CLIENT_P2P = 1;
+        	// Service Output
         	public static final byte SERVICE_P2P = 2;
+        	// Client Output
         	public static final byte CLIENT_PROXY = 3;
+        	// Service Output
         	public static final byte SERVICE_PROXY = 4;
+        	// Output
         	public static final byte AUTH_HASH = 5;
+        	// Client Output
         	public static final byte P2P_FAILED = 6;
+        	
             // Input
+        	public static final byte ERROR = 10;
         	public static final byte AUTH_KEY = 11;
         	public static final byte CREATE_P2P_CONNECTION = 12;
-        	public static final byte CREATE_P2P_CONNECTION_IN_DUAL_MODE = 13;
-        	public static final byte CREATE_PROXY_CONNECTION = 14;
-        	public static final byte ERROR = 15;
+        	public static final byte CREATE_P2P_CONNECTION_IN_DUAL_MODE = 13;        	
+        	public static final byte CREATE_PROXY_CONNECTION = 14;        	
         }
         
-        public static class TcpProxy        
+        public static class TcpProxy
         {
         	// Input/Output
         	public static final byte CLIENT_PROXY_ENDPOINT = 1;
@@ -404,29 +410,36 @@ public class Constants
         
         public static class UdpConnector        
         {
+        	// Client Output
+        	public static final byte CLIENT_ENDPOINT = 1;
+        	// Service Output
+        	public static final byte SERVICE_ENDPOINT = 2;
         	// Output
-        	public static final byte CLIENT = 1;
-        	public static final byte SERVICE = 2;
         	public static final byte AUTH_HASH = 3;
-        	public static final byte P2P_FAILED = 4;
+        	// Service Output
+        	public static final byte CREATE_PROXY_CONNECTION = 4;        	            
+        	
         	// Input
+        	public static final byte ERROR = 10;        	                    	
         	public static final byte AUTH_KEY = 11;
         	public static final byte CREATE_P2P_CONNECTION = 12;
         	public static final byte CREATE_P2P_CONNECTION_IN_DUAL_MODE = 13;
-        	public static final byte ERROR = 14;
-        	// Input/Output
+        	public static final byte PROXY_CONNECTION_CREATED = 14;        	            
+        	
+        	// Client Input / Service Output
         	public static final byte P2P_HOLE_PUNCHED = 21;        	            
         	public static final byte P2P_LOCAL_HOLE_PUNCHED = 22;        	            
+        	// Client Output / Service Input
+        	public static final byte P2P_CONNECTION_CREATED = 23;        	            
         }
 
         public static class UdpEndpoint        
         {
-        	// Input/Output
-        	public static final byte ATTACH_TO_CONNECTOR = 86;
-        	public static final byte ATTACHED = 87;
+        	// Output
+        	public static final byte ENDPOINT_INFO = 86;
+        	// Input/Output        	
         	public static final byte P2P_HOLE_PUNCH = 88;
         	public static final byte P2P_LOCAL_HOLE_PUNCH = 89;
-        	public static final byte PROXY_ESTABLISHED = 90;
         }
     }
 }

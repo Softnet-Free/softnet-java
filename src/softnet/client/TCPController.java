@@ -312,13 +312,9 @@ class TCPController
 			
 			request.serverId = serverId;
 			if(serverIp instanceof Inet6Address)
-			{
-				request.tcpConnector = new TCPConnectorV6(connectionUid, serverIp, request.tcpOptions, scheduler);
-			}
+				request.tcpConnector = new TCPConnectorV6(connectionUid, serverIp, request.tcpOptions);
 			else
-			{
-				request.tcpConnector = new TCPConnectorV4(connectionUid, serverIp, request.tcpOptions, scheduler);
-			}
+				request.tcpConnector = new TCPConnectorV4(connectionUid, serverIp, request.tcpOptions);
 		}
 		
 		request.tcpConnector.connect(new TCPResponseHandler()
@@ -332,7 +328,7 @@ class TCPController
 			@Override
 			public void onError(ResponseContext context, SoftnetException exception)
 			{
-				onTcpConnectorError(exception, (TcpRequest)context.attachment);
+				onTcpConnectorError((TcpRequest)context.attachment);
 			}
 		},
 		new BiAcceptor<byte[], Object>()
@@ -380,7 +376,7 @@ class TCPController
 		request.responseHandler.onSuccess(new ResponseContext(clientEndpoint, request.remoteService, request.attachment), socketChannel, mode);
 	}
 	
-	private void onTcpConnectorError(SoftnetException exception, final TcpRequest request)
+	private void onTcpConnectorError(final TcpRequest request)
 	{
 		synchronized(mutex)
 		{
@@ -388,7 +384,7 @@ class TCPController
 				return;
 		}						
 		request.timeoutControlTask.cancel();
-		request.responseHandler.onError(new ResponseContext(clientEndpoint, request.remoteService, request.attachment), exception);
+		request.responseHandler.onError(new ResponseContext(clientEndpoint, request.remoteService, request.attachment), new ConnectionAttemptFailedSoftnetException());
 	}
 	
 	private void processMessage_RequestError(byte[] message, Channel channel) throws AsnException

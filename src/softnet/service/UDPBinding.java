@@ -118,14 +118,12 @@ class UDPBinding
 			{
 				for(UdpRequest request: pendingRequests)
 					request.udpConnector.abort();			
-				pendingRequests.clear();
 			}
 			
 			if(completedRequests.size() > 0)
 			{
 				for(UdpRequest request: completedRequests)
 					request.datagramSocket.close();
-				completedRequests.clear();
 			}
 		}		
 	}
@@ -201,8 +199,6 @@ class UDPBinding
 		
 		synchronized(mutex)
 		{
-			if(channel.isClosed())
-				return;
 			pendingRequests.add(request);
 		}
 
@@ -215,9 +211,9 @@ class UDPBinding
 			}
 
 			@Override
-			public void onError(int errorCode, Object attachment)
+			public void onError(Object attachment)
 			{
-				onUdpConnectorError(errorCode, attachment);
+				onUdpConnectorError(attachment);
 			}
 		},
 		new BiAcceptor<byte[], Object>()
@@ -283,7 +279,6 @@ class UDPBinding
 	{
 		UdpRequest request = (UdpRequest)attachment;
 		UDPAcceptHandler acceptHandler = null;
-		
 		synchronized(mutex)
 		{
 			if(pendingRequests.remove(request) == false)
@@ -313,7 +308,7 @@ class UDPBinding
 		acceptHandler.accept(new RequestContext(serviceEndpoint, request.user, request.clientId, request.sessionTag), datagramSocket, remoteSocketAddress, mode);
 	}
 
-	private void onUdpConnectorError(int errorCode, Object attachment)
+	private void onUdpConnectorError(Object attachment)
 	{
 		UdpRequest request = (UdpRequest)attachment;	
 		synchronized(mutex)
@@ -322,7 +317,7 @@ class UDPBinding
 				return;
 		}		
 		request.timeoutControlTask.cancel();
-		request.channel.send(EncodeMessage_RequestError(request.requestUid, errorCode, request.userKind, request.clientId));
+		request.channel.send(EncodeMessage_RequestError(request.requestUid, ErrorCodes.CONNECTION_ATTEMPT_FAILED, request.userKind, request.clientId));
 	}
 	
 	private SoftnetMessage EncodeMessage_AuthKey(int virtualPort, UUID connectionUid, int serverId, byte[] authKey)

@@ -22,5 +22,5 @@ import softnet.ConnectionMode;
 interface TCPResponseHandler
 {
 	void onSuccess(SocketChannel socketChannel, ConnectionMode mode, Object attachment);
-	void onError(int errorCode, Object attachment);
+	void onError(Object attachment);
 }

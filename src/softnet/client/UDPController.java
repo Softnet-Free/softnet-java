@@ -308,13 +308,9 @@ class UDPController
 			
 			request.serverId = serverId;
 			if(serverIP instanceof Inet6Address)
-			{
 				request.udpConnector = new UDPConnectorV6(connectionUid, serverIP, scheduler);
-			}
 			else
-			{
 				request.udpConnector = new UDPConnectorV4(connectionUid, serverIP, scheduler);
-			}
 		}
 		
 		request.udpConnector.connect(new UDPResponseHandler()
@@ -328,7 +324,7 @@ class UDPController
 			@Override
 			public void onError(ResponseContext context, SoftnetException exception)
 			{
-				onUdpConnectorError(exception, (UdpRequest)context.attachment);
+				onUdpConnectorError((UdpRequest)context.attachment);
 			}
 		},
 		new BiAcceptor<byte[], Object>()
@@ -377,7 +373,7 @@ class UDPController
 		request.responseHandler.onSuccess(new ResponseContext(clientEndpoint, request.remoteService, request.attachment), datagramSocket, remoteSocketAddress, mode);		
 	}
 	
-	private void onUdpConnectorError(SoftnetException exception, final UdpRequest request)
+	private void onUdpConnectorError(final UdpRequest request)
 	{
 		synchronized(mutex)
 		{
@@ -386,7 +382,7 @@ class UDPController
 		}	
 		
 		request.timeoutControlTask.cancel();
-		request.responseHandler.onError(new ResponseContext(clientEndpoint, request.remoteService, request.attachment), exception);
+		request.responseHandler.onError(new ResponseContext(clientEndpoint, request.remoteService, request.attachment), new ConnectionAttemptFailedSoftnetException());
 	}
 	
 	private void processMessage_RequestError(byte[] message, Channel channel) throws AsnException
