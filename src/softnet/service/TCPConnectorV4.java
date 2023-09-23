@@ -677,7 +677,8 @@ public class TCPConnectorV4 implements TCPConnector
 		int port = ByteConverter.toInt32FromUInt16(publicIepBytes, 4);
 		remotePublicIEP = new InetSocketAddress(ip, port);
 
-		System.arraycopy(privateIepBytes, 0, ipBytes, 0, 4);		
+		for (int i = 0; i < 4; i++)
+			ipBytes[i] = (byte) ~privateIepBytes[i];
 		ip = InetAddress.getByAddress(ipBytes);
 		port = ByteConverter.toInt32FromUInt16(privateIepBytes, 4);
 		remotePrivateIEP = new InetSocketAddress(ip, port);
@@ -740,6 +741,8 @@ public class TCPConnectorV4 implements TCPConnector
 	{
 		byte[] iepBytes = new byte[6];
 		System.arraycopy(localIEP.getAddress().getAddress(), 0, iepBytes, 0, 4);
+		for (int i = 0; i < 4; i++)
+			iepBytes[i] = (byte) ~iepBytes[i];
 		ByteConverter.writeAsUInt16(localIEP.getPort(), iepBytes, 4);
 						
 		ASNEncoder asnEncoder = new ASNEncoder();

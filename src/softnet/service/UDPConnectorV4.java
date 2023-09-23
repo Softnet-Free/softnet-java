@@ -375,9 +375,11 @@ class UDPConnectorV4 implements UDPConnector, STaskContext
 			byte[] data = new byte[23];
 			data[0] = Constants.Proxy.UdpEndpoint.ENDPOINT_INFO;
 			System.arraycopy(thisEndpointUid, 0, data, 1, 16);
-			System.arraycopy(localIP.getAddress(), 0, data, 17, 4);
-			ByteConverter.writeAsUInt16(dgmSocket.getLocalPort(), data, 21);
-
+			byte[] ipBytes = new byte[4];
+			System.arraycopy(localIP.getAddress(), 0, ipBytes, 0, 4);
+			for (int i = 0; i < 4; i++)
+	            data[17+i] = (byte) ~ipBytes[i];
+			ByteConverter.writeAsUInt16(dgmSocket.getLocalPort(), data, 21);			
 			DatagramPacket packet = new DatagramPacket(data, 23, serverIP, Constants.ServerPorts.UdpRzvPort);
 			dgmSocket.send(packet);
 
@@ -567,7 +569,8 @@ class UDPConnectorV4 implements UDPConnector, STaskContext
 		int port = ByteConverter.toInt32FromUInt16(publicIepBytes, 4);
 		InetSocketAddress publicSocketAddress = new InetSocketAddress(ip, port);
 
-		System.arraycopy(privateIepBytes, 0, ipBytes, 0, 4);		
+		for (int i = 0; i < 4; i++)
+			ipBytes[i] = (byte) ~privateIepBytes[i];
 		ip = InetAddress.getByAddress(ipBytes);
 		port = ByteConverter.toInt32FromUInt16(privateIepBytes, 4);
 		InetSocketAddress privateSocketAddress = new InetSocketAddress(ip, port);
