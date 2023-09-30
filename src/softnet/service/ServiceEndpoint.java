@@ -30,7 +30,7 @@ public class ServiceEndpoint
 		return new SiteStructureAdapter(serviceType, contractAuthor);
 	}
 	
-	public static ServiceEndpoint create(SiteStructure siteStructure, String serviceVersion, ServiceURI serviceURI, String password) throws HostErrorSoftnetException
+	public static ServiceEndpoint create(SiteStructure siteStructure, String version, ServiceURI serviceURI, String password) throws HostErrorSoftnetException
 	{
 		if(siteStructure == null)
 			throw new IllegalArgumentException("'siteStructure' must not be null.");
@@ -38,12 +38,12 @@ public class ServiceEndpoint
 		if(serviceURI == null)
 			throw new IllegalArgumentException("'serviceURI' must not be null.");
 
-		if(serviceVersion != null)
+		if(version != null)
 		{
-			if(serviceVersion.length() > 0)
-				validateServiceVersionFormat(serviceVersion);
+			if(version.length() > 0)
+				validateVersionFormat(version);
 			else
-				serviceVersion = null;
+				version = null;
 		}
 		
 		if(password == null || password.length() == 0)
@@ -53,7 +53,7 @@ public class ServiceEndpoint
 			throw new IllegalArgumentException("The length of 'password' must not be greater than 256.");
 		
 		ServiceEndpoint service = new ServiceEndpoint();
-		service.initialize((SiteStructureAdapter)siteStructure, serviceVersion, serviceURI, password);
+		service.initialize((SiteStructureAdapter)siteStructure, version, serviceURI, password);
 		return service;
 	}
 		
@@ -63,7 +63,7 @@ public class ServiceEndpoint
 		scheduler = new Scheduler(threadPool);
 	}
 
-	private void initialize(SiteStructureAdapter siteStructure, String serviceVersion, ServiceURI serviceURI, String password) throws HostErrorSoftnetException
+	private void initialize(SiteStructureAdapter siteStructure, String version, ServiceURI serviceURI, String password) throws HostErrorSoftnetException
 	{
 		siteStructure.commit();
 		
@@ -126,7 +126,7 @@ public class ServiceEndpoint
 		udpController = new UDPController(this, membership);
 		rpcController = new RPCController(this, membership);
 
-		serviceInstaller = new ServiceInstaller(siteStructure, serviceVersion, membership, stateController, endpoint_mutex);
+		serviceInstaller = new ServiceInstaller(siteStructure, version, membership, stateController, endpoint_mutex);
 		serviceInstaller.Init();
 		serviceInstaller.serviceOnlineCallback = new Runnable()
 		{
@@ -496,7 +496,7 @@ public class ServiceEndpoint
 		}
 	}
 	
-    private static void validateServiceVersionFormat(String version)
+    private static void validateVersionFormat(String version)
     {
 		if(version.length() > 64)
 			throw new IllegalArgumentException(String.format("The software version '%s' contains more than 64 characters.", version));

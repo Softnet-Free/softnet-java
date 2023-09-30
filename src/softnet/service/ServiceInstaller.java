@@ -38,10 +38,10 @@ class ServiceInstaller
 		return serviceStatus;
 	}	
 
-	public ServiceInstaller(SiteStructureAdapter siteStructure, String serviceVersion, Membership membership, SyncController stateController, Object endpoint_mutex)
+	public ServiceInstaller(SiteStructureAdapter siteStructure, String version, Membership membership, SyncController stateController, Object endpoint_mutex)
 	{
 		this.siteStructure = siteStructure;		
-		this.serviceVersion = serviceVersion;
+		this.version = version;
 		this.membership = membership;
 		this.stateController = stateController;
 		this.endpoint_mutex = endpoint_mutex;
@@ -61,7 +61,7 @@ class ServiceInstaller
 	
 	private SiteStructureAdapter siteStructure;
 	private byte[] siteStructureHash = null;
-	private String serviceVersion;
+	private String version;
 	private Membership membership;
 	private SyncController stateController;
 			
@@ -114,8 +114,8 @@ class ServiceInstaller
         asnSiteProfile.IA5String(siteStructure.contractAuthor);         	        
         asnSiteProfile.OctetString(siteStructureHash);
         
-        if(serviceVersion != null)
-        	asnRootEncoder.IA5String(1, serviceVersion);
+        if(version != null)
+        	asnRootEncoder.IA5String(1, version);
      
         SequenceEncoder asnMembershipState = asnRootEncoder.Sequence();
         byte[] userListHash = membership.getHash();
@@ -237,8 +237,8 @@ class ServiceInstaller
         	}
         }        
         
-        if(serviceVersion != null)
-        	asnRootSequence.IA5String(1, serviceVersion);
+        if(version != null)
+        	asnRootSequence.IA5String(1, version);
 		
 		channel.send(MsgBuilder.Create(Constants.Service.Installer.ModuleId, Constants.Service.Installer.SITE_STRUCTURE, asnEncoder));
 	}
