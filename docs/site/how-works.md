@@ -21,5 +21,5 @@ A Softnet client should also specify the type of service it was designed to cons
 * [6.1. Defining the minimal site structure]({{ site.baseurl }}{% link docs/site/minimal-structure.md %})
 * [6.2. Defining the guest support]({{ site.baseurl }}{% link docs/site/guest-support.md %})
 * [6.3. Defining user roles]({{ site.baseurl }}{% link docs/site/user-roles.md %})
-* [6.4. Defining application events]({{ site.baseurl }}{% link docs/site/application-events.md %})
+* [6.4. Defining service events]({{ site.baseurl }}{% link docs/site/service-events.md %})
 * 6.5. How it works

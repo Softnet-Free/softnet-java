@@ -2,7 +2,7 @@
 layout: default
 title: 17.4.1. Persistence of Stateful Clients
 parent: 17.4. Client Persistence
-grand_parent: 17. Application Events
+grand_parent: 17. Pub/Sub Events
 nav_order: 1
 ---
 
@@ -18,17 +18,17 @@ If a client uses CPL-2 then it is an ideal case where each event is received onc
 
 ---
 #### TABLE OF CONTENTS
-* [17.1. Basic features]({{ site.baseurl }}{% link docs/application-events/basic-features.md %})
-* [17.2. Event delivery model]({{ site.baseurl }}{% link docs/application-events/delivery-model.md %})
-* [17.3. Service Persistence]({{ site.baseurl }}{% link docs/application-events/service-persistence.md %})
-* [17.4. Client Persistence]({{ site.baseurl }}{% link docs/application-events/client-persistence/index.md %})
+* [17.1. Basic features]({{ site.baseurl }}{% link docs/pub-sub-events/basic-features.md %})
+* [17.2. Event delivery model]({{ site.baseurl }}{% link docs/pub-sub-events/delivery-model.md %})
+* [17.3. Service Persistence]({{ site.baseurl }}{% link docs/pub-sub-events/service-persistence.md %})
+* [17.4. Client Persistence]({{ site.baseurl }}{% link docs/pub-sub-events/client-persistence/index.md %})
     * 17.4.1. Persistence of Stateful Clients
-    * [17.4.2. Persistence of Stateless Clients]({{ site.baseurl }}{% link docs/application-events/client-persistence/categories/stateless-client-persistence.md %})
-* [17.5. Setting up the service persistence]({{ site.baseurl }}{% link docs/application-events/setting-service-persistence.md %})
-* [17.6. Setting up the client persistence]({{ site.baseurl }}{% link docs/application-events/setting-client-persistence.md %})
-* [17.7. Raising Replacing events]({{ site.baseurl }}{% link docs/application-events/raising-replacing-events.md %})
-* [17.8. Handling Replacing events]({{ site.baseurl }}{% link docs/application-events/handling-replacing-events.md %})
-* [17.9. Raising Queueing events]({{ site.baseurl }}{% link docs/application-events/raising-queueing-events.md %})
-* [17.10. Handling Queueing events]({{ site.baseurl }}{% link docs/application-events/handling-queueing-events.md %})
-* [17.11. Raising Private events]({{ site.baseurl }}{% link docs/application-events/raising-private-events.md %})
-* [17.12. Handling Private events]({{ site.baseurl }}{% link docs/application-events/handling-private-events.md %})
+    * [17.4.2. Persistence of Stateless Clients]({{ site.baseurl }}{% link docs/pub-sub-events/client-persistence/categories/stateless-client-persistence.md %})
+* [17.5. Setting up the service persistence]({{ site.baseurl }}{% link docs/pub-sub-events/setting-service-persistence.md %})
+* [17.6. Setting up the client persistence]({{ site.baseurl }}{% link docs/pub-sub-events/setting-client-persistence.md %})
+* [17.7. Raising Replacing events]({{ site.baseurl }}{% link docs/pub-sub-events/raising-replacing-events.md %})
+* [17.8. Handling Replacing events]({{ site.baseurl }}{% link docs/pub-sub-events/handling-replacing-events.md %})
+* [17.9. Raising Queueing events]({{ site.baseurl }}{% link docs/pub-sub-events/raising-queueing-events.md %})
+* [17.10. Handling Queueing events]({{ site.baseurl }}{% link docs/pub-sub-events/handling-queueing-events.md %})
+* [17.11. Raising Private events]({{ site.baseurl }}{% link docs/pub-sub-events/raising-private-events.md %})
+* [17.12. Handling Private events]({{ site.baseurl }}{% link docs/pub-sub-events/handling-private-events.md %})

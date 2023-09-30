@@ -1,13 +1,13 @@
 ---
 layout: default
 title: 17.9. Raising Queueing events
-parent: 17. Application Events
+parent: 17. Pub/Sub Events
 nav_order: 9
 ---
 
 ## 17.9. Raising Queueing events
 
-According to the name, each new Queueing event joins the queue of previously received instances. This continues until the queue is full. Then each new event pushes the oldest one out of the queue. The event is also removed from the queue at the end of the lifetime. Event parameters are defined in the site structure. These are the event name, lifetime, maximum queue size, and access rule. See the section "[Defining application events]({{ site.baseurl }}{% link docs/site/application-events.md %})" for details. Queuing events are used when clients need all raised events.  
+According to the name, each new Queueing event joins the queue of previously received instances. This continues until the queue is full. Then each new event pushes the oldest one out of the queue. The event is also removed from the queue at the end of the lifetime. Event parameters are defined in the site structure. These are the event name, lifetime, maximum queue size, and access rule. See the section "[Defining service events]({{ site.baseurl }}{% link docs/site/service-events.md %})" for details. Queuing events are used when clients need all raised events.  
 
 There are no clear similarities between Softnet queuing events and MQTT topics. This is because MQTT topics cannot contain more than one message at a time. However, if a subscriber needs to receive all messages published on the MQTT topic while it is offline, the subscriber can create a stateful subscription.  
 
@@ -59,15 +59,15 @@ serviceEndpoint.raiseEvent(event);
 
 ---
 #### TABLE OF CONTENTS
-* [17.1. Basic features]({{ site.baseurl }}{% link docs/application-events/basic-features.md %})
-* [17.2. Event delivery model]({{ site.baseurl }}{% link docs/application-events/delivery-model.md %})
-* [17.3. Service Persistence]({{ site.baseurl }}{% link docs/application-events/service-persistence.md %})
-* [17.4. Client Persistence]({{ site.baseurl }}{% link docs/application-events/client-persistence/index.md %})
-* [17.5. Setting up the service persistence]({{ site.baseurl }}{% link docs/application-events/setting-service-persistence.md %})
-* [17.6. Setting up the client persistence]({{ site.baseurl }}{% link docs/application-events/setting-client-persistence.md %})
-* [17.7. Raising Replacing events]({{ site.baseurl }}{% link docs/application-events/raising-replacing-events.md %})
-* [17.8. Handling Replacing events]({{ site.baseurl }}{% link docs/application-events/handling-replacing-events.md %})
+* [17.1. Basic features]({{ site.baseurl }}{% link docs/pub-sub-events/basic-features.md %})
+* [17.2. Event delivery model]({{ site.baseurl }}{% link docs/pub-sub-events/delivery-model.md %})
+* [17.3. Service Persistence]({{ site.baseurl }}{% link docs/pub-sub-events/service-persistence.md %})
+* [17.4. Client Persistence]({{ site.baseurl }}{% link docs/pub-sub-events/client-persistence/index.md %})
+* [17.5. Setting up the service persistence]({{ site.baseurl }}{% link docs/pub-sub-events/setting-service-persistence.md %})
+* [17.6. Setting up the client persistence]({{ site.baseurl }}{% link docs/pub-sub-events/setting-client-persistence.md %})
+* [17.7. Raising Replacing events]({{ site.baseurl }}{% link docs/pub-sub-events/raising-replacing-events.md %})
+* [17.8. Handling Replacing events]({{ site.baseurl }}{% link docs/pub-sub-events/handling-replacing-events.md %})
 * 17.9. Raising Queueing events
-* [17.10. Handling Queueing events]({{ site.baseurl }}{% link docs/application-events/handling-queueing-events.md %})
-* [17.11. Raising Private events]({{ site.baseurl }}{% link docs/application-events/raising-private-events.md %})
-* [17.12. Handling Private events]({{ site.baseurl }}{% link docs/application-events/handling-private-events.md %})
+* [17.10. Handling Queueing events]({{ site.baseurl }}{% link docs/pub-sub-events/handling-queueing-events.md %})
+* [17.11. Raising Private events]({{ site.baseurl }}{% link docs/pub-sub-events/raising-private-events.md %})
+* [17.12. Handling Private events]({{ site.baseurl }}{% link docs/pub-sub-events/handling-private-events.md %})

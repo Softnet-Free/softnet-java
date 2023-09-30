@@ -67,7 +67,7 @@ public class RequestContext {
 ```
 *	<span class="field">serviceEndpoint</span> – the endpoint that handled the connection request. You can use it to call tcpAccept again;
 *	<span class="field">user</span> is a <span class="datatype">MembershipUser</span> object that contains the name, type, and permissions of the user with which the client is associated;
-*	<span class="field">clientId</span> – ID of the client that made the request. It is used when, after an indefinite period of time, your application needs to send a Private event back to the client. The details are given in section "[Raising Private events]({{ site.baseurl }}{% link docs/application-events/raising-private-events.md %})".  
+*	<span class="field">clientId</span> – ID of the client that made the request. It is used when, after an indefinite period of time, your application needs to send a Private event back to the client. The details are given in section "[Raising Private events]({{ site.baseurl }}{% link docs/pub-sub-events/raising-private-events.md %})".  
 
 Below is an example of using the described two methods to handle TCP connection requests. The <span class="method">tcpListen</span> method binds to the virtual port 10, sets the backlog to 5, and creates an access rule with user roles "Editor" and "Operator". The example implements the <span class="datatype">TCPAcceptHandler</span> interface and uses it as a second argument to the <span class="method">tcpAccept</span> method. Inside the <span class="method">accept</span> method, the method <span class="method">tcpAccept</span> is called again:
 ```java

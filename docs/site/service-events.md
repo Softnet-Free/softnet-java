@@ -1,13 +1,13 @@
 ---
 layout: default
-title: 6.4. Defining application events
+title: 6.4. Defining service events
 parent: 6. Site and Site Structure
 nav_order: 4
 ---
 
-## 6.4. Defining application events
+## 6.4. Defining service events
 
-IoT applications often employ some kind of inter-device eventing model. Softnet offers a Pub/Sub eventing model where publishers are services and subscribers are clients, all registered on the same site. Each event has a category, name and other parameters and must be declared in the site structure. Softnet uses this information to configure the event broker hosted on the site. Softnet supports three categories of events – Replacing, Queueing, and Private.  
+IoT applications often employ some kind of inter-device eventing model. Softnet offers a Pub/Sub eventing model in which publishers are services and subscribers are clients, all registered on the same site. Each event has a category, name and other parameters and must be declared in the site structure. Softnet uses this information to configure the event broker hosted on the site. Softnet supports three categories of events – Replacing, Queueing, and Private.  
 
 **Replacing Events** are convenient for representing changes in the parameters of electro-mechanical objects over time. For example, such parameters can be the readings of temperature, humidity, pressure, etc. The service can raise a Replacing event whenever the corresponding parameter reaches a certain value or changes by a certain delta. Each time an event is received by the broker, the previous instance is replaced with a new one. Thus, at any given time, a subscribed client can only receive the latest event.  
 

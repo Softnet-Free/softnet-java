@@ -1,7 +1,7 @@
 ---
 layout: default
 title: 17.11. Raising Private events
-parent: 17. Application Events
+parent: 17. Pub/Sub Events
 nav_order: 11
 ---
 
@@ -11,7 +11,7 @@ At times, a service may not be able to immediately respond to a client request a
 
 Comparing Softnet Private events with MQTT topics, you can hardly find similarities because MQTT follows a loose coupling model and does not support messages addressed to specific subscribers.  
 
-The queue of Private events on the broker works similar to the queue of Queueing events. Each new event joins the queue of previously received instances. This continues until the queue is full. Then each new event pushes the oldest one out of the queue. The difference is that the maximum queue size is fixed at 1000. The event is also removed from the queue at the end of the lifetime. Event parameters are defined in the site structure. There are only two of them - the name of the event and the lifetime. Access rules are not used since each event is addressed to a specific client specified by the service. See the section "[Defining application events]({{ site.baseurl }}{% link docs/site/application-events.md %})" for details. Any client, except stateless, can subscribe to a Private event, but each client receives only those events that were addressed to it.  
+The queue of Private events on the broker works similar to the queue of Queueing events. Each new event joins the queue of previously received instances. This continues until the queue is full. Then each new event pushes the oldest one out of the queue. The difference is that the maximum queue size is fixed at 1000. The event is also removed from the queue at the end of the lifetime. Event parameters are defined in the site structure. There are only two of them - the name of the event and the lifetime. Access rules are not used since each event is addressed to a specific client specified by the service. See the section "[Defining service events]({{ site.baseurl }}{% link docs/site/service-events.md %})" for details. Any client, except stateless, can subscribe to a Private event, but each client receives only those events that were addressed to it.  
 
 To raise a Private event, the service needs a client ID. The service takes it from the client's request. This can be an RPC request, a TCP connection request, or a UDP connection request. 
 First, a Private event must be defined in the site structure. The <span class="datatype">SiteStructure</span> implementation has the following method for this:
@@ -144,15 +144,15 @@ public static void main(String[] args) {
 
 ---
 #### TABLE OF CONTENTS
-* [17.1. Basic features]({{ site.baseurl }}{% link docs/application-events/basic-features.md %})
-* [17.2. Event delivery model]({{ site.baseurl }}{% link docs/application-events/delivery-model.md %})
-* [17.3. Service Persistence]({{ site.baseurl }}{% link docs/application-events/service-persistence.md %})
-* [17.4. Client Persistence]({{ site.baseurl }}{% link docs/application-events/client-persistence/index.md %})
-* [17.5. Setting up the service persistence]({{ site.baseurl }}{% link docs/application-events/setting-service-persistence.md %})
-* [17.6. Setting up the client persistence]({{ site.baseurl }}{% link docs/application-events/setting-client-persistence.md %})
-* [17.7. Raising Replacing events]({{ site.baseurl }}{% link docs/application-events/raising-replacing-events.md %})
-* [17.8. Handling Replacing events]({{ site.baseurl }}{% link docs/application-events/handling-replacing-events.md %})
-* [17.9. Raising Queueing events]({{ site.baseurl }}{% link docs/application-events/raising-queueing-events.md %})
-* [17.10. Handling Queueing events]({{ site.baseurl }}{% link docs/application-events/handling-queueing-events.md %})
+* [17.1. Basic features]({{ site.baseurl }}{% link docs/pub-sub-events/basic-features.md %})
+* [17.2. Event delivery model]({{ site.baseurl }}{% link docs/pub-sub-events/delivery-model.md %})
+* [17.3. Service Persistence]({{ site.baseurl }}{% link docs/pub-sub-events/service-persistence.md %})
+* [17.4. Client Persistence]({{ site.baseurl }}{% link docs/pub-sub-events/client-persistence/index.md %})
+* [17.5. Setting up the service persistence]({{ site.baseurl }}{% link docs/pub-sub-events/setting-service-persistence.md %})
+* [17.6. Setting up the client persistence]({{ site.baseurl }}{% link docs/pub-sub-events/setting-client-persistence.md %})
+* [17.7. Raising Replacing events]({{ site.baseurl }}{% link docs/pub-sub-events/raising-replacing-events.md %})
+* [17.8. Handling Replacing events]({{ site.baseurl }}{% link docs/pub-sub-events/handling-replacing-events.md %})
+* [17.9. Raising Queueing events]({{ site.baseurl }}{% link docs/pub-sub-events/raising-queueing-events.md %})
+* [17.10. Handling Queueing events]({{ site.baseurl }}{% link docs/pub-sub-events/handling-queueing-events.md %})
 * 17.11. Raising Private events
-* [17.12. Handling Private events]({{ site.baseurl }}{% link docs/application-events/handling-private-events.md %})
+* [17.12. Handling Private events]({{ site.baseurl }}{% link docs/pub-sub-events/handling-private-events.md %})
