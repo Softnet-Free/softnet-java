@@ -1,7 +1,7 @@
 ---
 layout: default
 title: 9.3. Fine-grained access control
-parent: 9. User Membership
+parent: 9. Access Control
 nav_order: 3
 ---
 
@@ -27,6 +27,6 @@ serviceEndpoint.tcpAccept(10, new TCPRequestHandler() {
 
 ---
 #### TABLE OF CONTENTS
-* [9.1. The User Membership API]({{ site.baseurl }}{% link docs/user-membership/sections/api.md %})
-* [9.2. Declarative definition of access rules]({{ site.baseurl }}{% link docs/user-membership/sections/declarative-access-rules.md %})
+* [9.1. The User Membership API]({{ site.baseurl }}{% link docs/access-control/sections/api.md %})
+* [9.2. Declarative definition of access rules]({{ site.baseurl }}{% link docs/access-control/sections/declarative-access-rules.md %})
 * 9.3. Fine-grained access control

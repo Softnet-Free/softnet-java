@@ -2,7 +2,7 @@
 layout: default
 title: 12.2.3. User properties change event handler
 parent: 12.2. Implementing event handlers
-grand_parent: 12. Platform events related to clients
+grand_parent: 12. Client-specific platform events
 nav_order: 3
 ---
 

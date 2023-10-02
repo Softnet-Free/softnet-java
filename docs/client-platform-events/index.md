@@ -1,14 +1,13 @@
 ---
 layout: default_no_content
-title: 12. Platform events related to clients
+title: 12. Client-specific platform events
 nav_order: 12
 has_children: true
 ---
 
-## 12. Platform events related to clients
+## 12. Client-specific platform events
 
-We continue discussing the platform events. This chapter is dedicated to platform events related to clients.
-
+We continue discussing the platform events. This chapter is dedicated client-specific platform events.
 ---
 #### TABLE OF CONTENTS
 * [12.1. Interface ClientEventListener]({{ site.baseurl }}{% link docs/client-platform-events/interface-client-event-listener.md %})

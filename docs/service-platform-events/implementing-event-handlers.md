@@ -1,7 +1,7 @@
 ---
 layout: default_no_content
 title: 11.2. Implementing event handlers
-parent: 11. Platform events related to services
+parent: 11. Service-specific platform events
 has_children: true
 nav_order: 2
 ---

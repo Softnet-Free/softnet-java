@@ -53,12 +53,13 @@ public class RequestContext {
     public final ServiceEndpoint serviceEndpoint;
     public final MembershipUser user;
     public final long clientId;	
-    // the constructor is omitted
+	public final SequenceDecoder sessionTag;
 }
 ```
-*	<span class="field">serviceEndpoint</span> – the endpoint that handled the connection request. You can use it to call <span class="method">udpAccept</span> again;
-*	<span class="field">user</span> is a <span class="datatype">MembershipUser</span> object that contains the name, type, and permissions of the user with which the client is associated;
-*	<span class="field">clientId</span> – ID of the client that made the request. It is used when, after an indefinite period of time, your application needs to send a Private event back to the client.  
+*	<span class="field">serviceEndpoint</span> – an endpoint that accepted the connection request. You can use it to call <span class="method">udpAccept</span> again;
+*	<span class="field">user</span> – a <span class="datatype">MembershipUser</span> object that contains the name, type, and permissions of the user with which the client is associated;
+*	<span class="field">clientId</span> – ID of the client that made the request. It is used in asynchronous communication scenarios where, after an indefinite period of time, an application needs to send a notification back to the client. In Softnet, Private events are used for this job;
+*	<span class="field">sessionTag</span> – clients use this parameter to provide information about the session in the context of which the request has been made.  
 
 Below is an example of using the UDP methods of the service endpoint. The <span class="method">udpListen</span> method binds to the virtual port 25, sets the backlog to 5, and creates an access rule that denies guest clients. The example implements the <span class="datatype">UDPAcceptHandler</span> interface and uses it as a second argument to the <span class="method">udpAccept</span> method. Inside the <span class="method">accept</span> method, the method <span class="method">udpAccept</span> is called again:
 ```java

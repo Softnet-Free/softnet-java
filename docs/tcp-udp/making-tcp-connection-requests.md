@@ -16,15 +16,27 @@ public void tcpConnect(
     int virtualPort,
     TCPOptions tcpOptions,
     TCPResponseHandler responseHandler, 
-    Object attachment)
+    RequestParams requestParams)
 ```
-*	<span class="param">remoteService</span> is the first parameter of any request method of the client endpoint. Before making a request, your app can check the online status and version of the service against it. Note that a single-service endpoint has overloaded request methods without this parameter;
+*	<span class="param">remoteService</span> is the first parameter of any request method of the client endpoint. Before making a request, your app can check the online status and the version of the service's primary API against it. Note that a single-service endpoint has overloaded request methods without this parameter;
 *	<span class="param">virtualPort</span> is a virtual port on which the remote service is listening;
 *	<span class="param">tcpOptions</span> specifies the receive and send buffer sizes that will be assigned to the TCP connection at the client side;
 *	<span class="param">responseHandler</span> is an implementation of the <span class="datatype">TCPResponseHandler</span> interface that client app provides to the method. It is discussed below;
-*	<span class="param">attachment</span> is an optional parameter that contains any attached data you want to pass to the respone handler;  
+*	<span class="param">requestParams</span> is an optional parameter whose structure is shown next.  
 
-The following is the <span class="datatype">TCPResponseHandler</span> interface:
+<span class="datatype">RequestParams</span> is a unified structure that clients use to specify additional parameters for any request method of the platform. It has three fields:
+```java
+public class RequestParams {
+	public final Object attachment;
+	public final int waitSeconds; 
+	public final SequenceEncoder sessionTag;
+}
+```
+*	<span class="field">attachment</span> contains any attached data you want to pass to the respone handler;
+*	<span class="field">waitSeconds</span> is the wait timeout after which the request method completes with an exception of type <span class="exception">TimeoutExpiredSoftnetException</span>. Its default value is zero, which sets the default timeout value to 30 seconds;
+*	<span class="field">sessionTag</span> is used to provide information about the session in the context of which the request will be made.  
+
+Next to consider is the <span class="datatype">TCPResponseHandler</span> interface:
 ```java
 public interface TCPResponseHandler {
 	void onSuccess(ResponseContext context, SocketChannel socketChannel, ConnectionMode mode);
@@ -42,12 +54,11 @@ public class ResponseContext {
     public final ClientEndpoint clientEndpoint;
     public final RemoteService remoteService;
     public final Object attachment;	
-    // the constructor is omitted
 }
 ```
-*	<span class="field">clientEndpoint</span> specifies a client endpoint that sent the connection request;
+*	<span class="field">clientEndpoint</span> is the client endpoint that made the connection request;
 *	<span class="field">remoteService</span> represents a remote service to which the request has been made;
-*	<span class="field">attachment</span> is state data provided to the tcpConnect call.  
+*	<span class="field">attachment</span> is the state data passed through the tcpConnect call.  
 
 The <span class="method">onError</span> method of <span class="datatype">TCPResponseHandler</span> is invoked if the connection request fails. The second parameter of type <span class="exception">SoftnetException</span> specifies an error. 
 Possible exceptions are listed below:

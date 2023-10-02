@@ -1,7 +1,7 @@
 ---
 layout: default_no_content
 title: 11.3. Adapter class ServiceEventAdapter
-parent: 11. Platform events related to services
+parent: 11. Service-specific platform events
 nav_order: 3
 ---
 

@@ -52,8 +52,8 @@ public interface RPCRequestHandler {
 ```
 The following list is the execute method’s parameters:
 *	<span class="param">context</span> is, as usual, the first parameter of any native request handler of Softnet;
-*	<span class="param">parameters</span> is of type <span class="datatype">asn.SequenseDecoder</span> and contains the data passed by the caller in ASN.1 DER format. It can have 64 kilobytes at most. If it contains a serialized data in any other format, your handler gets it as an ASN.1 OctetString or UTF8String element and deserializes;
-*	<span class="param">result</span> is an output parameter of type <span class="datatype">asn.SequenseEncoder</span>. Your handler can return the result in it. The maximum result data size is 64 kilobytes. If your handler uses any other format to transfer data, it can serialize the data and provide it to <span class="param">result</span> as an ASN.1 OctetString or UTF8String element;
+*	<span class="param">parameters</span> is of type <span class="datatype">asn.SequenseDecoder</span> and contains the data passed by the caller in ASN.1 DER format. It can be a maximum of 64 kilobytes in size. If it contains serialized data in binary or UTF8 string format, your handler receives it as an ASN.1 OctetString or UTF8String element and deserializes it;
+*	<span class="param">result</span> is an output parameter of type <span class="datatype">asn.SequenseEncoder</span>. Your handler can return the result in this. The maximum result data size is limited to 64 kilobytes;
 *	<span class="param">error</span> is an output parameter of type <span class="datatype">asn.SequenseEncoder</span>. Your handler can return additional data in case of error. For example, it could be an error message. Note that Softnet only accepts this data for delivery to the client if the execute method returns a non-zero value.  
 
 The <span class="method">execute</span> method returns an integer value. If the method succeeds, it must return zero, otherwise non-zero. In case of an error, your application can use the return value as an error code. Along with this, the handler can return additional data in the error parameter.  

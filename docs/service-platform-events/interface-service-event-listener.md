@@ -1,7 +1,7 @@
 ---
 layout: default_no_content
 title: 11.1. Interface ServiceEventListener
-parent: 11. Platform events related to services
+parent: 11. Service-specific platform events
 nav_order: 1
 ---
 

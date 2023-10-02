@@ -15,14 +15,26 @@ public void udpConnect(
     RemoteService remoteService,
     int virtualPort,
     TCPResponseHandler responseHandler, 
-    Object attachment)
+    RequestParams requestParams)
 ```
-*	<span class="param">remoteService</span> is the first parameter of any request method of the client endpoint. Before making a request, your app can check the online status and version of the service against it. Note that a single-service endpoint has overloaded request methods without this parameter;
+*	<span class="param">remoteService</span> is the first parameter of any request method of the client endpoint. Before making a request, your app can check the online status and the API version of the service against it. Note that a single-service endpoint has overloaded request methods without this parameter;
 *	<span class="param">virtualPort</span> is a virtual port on which the remote service is listening;
 *	<span class="param">responseHandler</span> is an implementation of the <span class="datatype">UDPResponseHandler</span> interface that client app provides to the method. It is discussed below;
-*	<span class="param">attachment</span> is an optional parameter that contains any attached data you want to have in the respone handler.  
+*	<span class="param">requestParams</span> is an optional parameter whose structure is shown next.  
 
-The following is the <span class="datatype">UDPResponseHandler</span> interface:
+<span class="datatype">RequestParams</span> is a unified structure that clients use to specify additional parameters for any request method of the platform. It has three fields:
+```java
+public class RequestParams {
+	public final Object attachment;
+	public final int waitSeconds; 
+	public final SequenceEncoder sessionTag;
+}
+```
+*	<span class="field">attachment</span> contains any attached data you want to pass to the respone handler;
+*	<span class="field">waitSeconds</span> is the wait timeout after which the request method completes with an exception of type <span class="exception">TimeoutExpiredSoftnetException</span>. Its default value is zero, which sets the default timeout value to 30 seconds;
+*	<span class="field">sessionTag</span> is used to provide information about the session in the context of which the request will be made.  
+
+Next to consider is the <span class="datatype">UDPResponseHandler</span> interface:
 ```java
 public interface UDPResponseHandler {
     void onSuccess(

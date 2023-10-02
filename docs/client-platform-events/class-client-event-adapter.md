@@ -1,7 +1,7 @@
 ---
 layout: default
 title: 12.3. Adapter class ClientEventAdapter
-parent: 12. Platform events related to clients
+parent: 12. Client-specific platform events
 nav_order: 3
 ---
 

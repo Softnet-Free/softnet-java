@@ -9,40 +9,32 @@ nav_order: 2
 
 This section describes the technique of making RPC requests. Again, before making a request, it is desirable to check whether the remote service is online. See the section "[Interface ClientEventListener]({{ site.baseurl }}{% link docs/client-platform-events/interface-client-event-listener.md %})" for details.  
 
-There are three overloaded methods to make an RPC call:  
-
-1) The first method has three parameters that are the same for all three methods. They are described after the list of methods:
-```java
-public void call(
-    RemoteService remoteService,
-    RemoteProcedure remoteProcedure,
-    RPCResponseHandler responseHandler)
-```
-
-2) The next method has the fourth parameter, attachment, which is used to pass state data to the response handler:
+There are two overloaded methods to make an RPC call. The second overload has an extra parameter in the end:  
 ```java
 public void call(
     RemoteService remoteService,
     RemoteProcedure remoteProcedure,
     RPCResponseHandler responseHandler,
-    Object attachment)
+    RequestParams requestParams)
 ```
-
-3) The final method has the fifth parameter, waitSeconds, which is used to specify a custom time to wait for the request to complete before a wait timeout error occurs. The default wait timeout is 30 seconds:
-```java
-public void call(
-    RemoteService remoteService,
-    RemoteProcedure remoteProcedure,
-    RPCResponseHandler responseHandler,
-    Object attachment,
-    int waitSeconds)
-```
-Here is the description of the first three parameters of the method:
 *	<span class="param">remoteService</span> represents a service to which the request is addressed;
 *	<span class="param">remoteProcedure</span> contains the name and arguments of the procedure;
 *	<span class="param">responseHandler</span> is an implementation of the <span class="datatype">RPCResponseHandler</span> interface that the client app provides to the method;  
+*	<span class="param">requestParams</span> is an optional parameter whose structure is shown next.  
 
-<span class="datatype">RemoteProcedure</span> has an <span class="field">arguments</span> field where the client provides arguments to call the method. It is of type <span class="datatype">SequenceEncoder</span> and the maximum data size is limited to 2 kilobytes. To learn the size of data in the <span class="field">arguments</span> field, you can call the <span class="method">getSize</span> method provided by <span class="datatype">SequenceEncoder</span>. 
+<span class="datatype">RequestParams</span> is a unified structure that clients use to specify additional parameters for a request method. It has three fields:
+```java
+public class RequestParams {
+	public final Object attachment;
+	public final int waitSeconds; 
+	public final SequenceEncoder sessionTag;
+}
+```
+*	<span class="field">attachment</span> contains any attached data you want to pass to the respone handler;
+*	<span class="field">waitSeconds</span> is the wait timeout after which the request method completes with an exception of type <span class="exception">TimeoutExpiredSoftnetException</span>. Its default value is zero, which sets the default timeout value to 30 seconds;
+*	<span class="field">sessionTag</span> is used to provide information about the session in the context of which the request will be made.  
+
+<span class="datatype">RemoteProcedure</span> has an <span class="field">arguments</span> field where the client provides arguments to call the method. It is of type <span class="datatype">SequenceEncoder</span>, and the maximum data size is limited to 64 kilobytes. To learn the size of data in the <span class="field">arguments</span> field, you can call the <span class="method">getSize</span> method provided by <span class="datatype">SequenceEncoder</span>. 
 
 When instantiating the <span class="datatype">RemoteProcedure</span> class, your application provides the procedure's name to the constructor. The public members of the class are shown below:
 ```java

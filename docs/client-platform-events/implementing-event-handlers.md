@@ -1,7 +1,7 @@
 ---
 layout: default_no_content
 title: 12.2. Implementing event handlers
-parent: 12. Platform events related to clients
+parent: 12. Client-specific platform events
 has_children: true
 nav_order: 2
 ---
@@ -12,7 +12,7 @@ Here you follow the same approach as when implementing service event handlers. I
 ```java
 public ClientEndpoint getEndpoint()
 ```
-The return value is of type <span class="datatype">ClientEndpoint</span>, which represents a multi-service endpoint. If the endpoint is supposed to be single-service, you can cast it to <span class="datatype">ClientSEndpoint</span> after checking if it is single-service (see the chapter "[Service Group]({{ site.baseurl }}{% link docs/service-group.md %})"). The type is convenient to interact with a single remote service.  
+The return value is of type <span class="datatype">ClientEndpoint</span>, which represents a multi-service endpoint. If the endpoint is supposed to be single-service, you can cast it to <span class="datatype">ClientSEndpoint</span> after checking if it is single-service (see the chapter "[Service Status Detection]({{ site.baseurl }}{% link docs/service-group.md %})"). The type is convenient to interact with a single remote service.  
 
 Some of the handlers associated with Service Group have a parameter 'e' of type <span class="datatype">RemoteServiceEvent</span> derived from <span class="datatype">ClientEndpointEvent</span>. Along with a derived method <span class="method">getEndpoint</span>, it has a field service of type <span class="datatype">RemoteService</span>. This is a remote service that caused the event to be raised by the platform.  
 

@@ -1,13 +1,13 @@
 ---
 layout: default_no_content
-title: 11. Platform events related to services
+title: 11. Service-specific platform events
 nav_order: 11
 has_children: true
 ---
 
-## 11. Platform events related to services
+## 11. Service-specific platform events
 
-Softnet is a very dynamic network. The internal state and connectivity of the network endpoints can change all the time. The structure of the network itself is changed by network users. There is a set of events that the platform raises to notify endpoints of these changes. This chapter discusses platform events related to services.
+Softnet is a very dynamic network. The internal state and connectivity of the network endpoints can change all the time. The structure of the network itself is changed by network users. There is a set of events that the platform raises to notify endpoints of these changes. This chapter discusses service-specific platform events.
 
 ---
 #### TABLE OF CONTENTS

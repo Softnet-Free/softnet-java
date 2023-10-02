@@ -2,7 +2,7 @@
 layout: default_no_content
 title: 11.2.4. User Membership event handlers
 parent: 11.2. Implementing event handlers
-grand_parent: 11. Platform events related to services
+grand_parent: 11. Service-specific platform events
 nav_order: 4
 ---
 
@@ -21,12 +21,10 @@ public void onUserUpdated(MembershipUserEvent e)
     System.out.println(String.format("User updated -----------------"));
     System.out.println(String.format("ID: %d", e.user.getId()));
     System.out.println(String.format("Name: %s", e.user.getName()));
-    if(e.user.hasRoles())
-    {
+    if(e.user.hasRoles()) {
         System.out.println("User roles:");
-        for(String role: e.user.getRoles()) {
+        for(String role: e.user.getRoles()) 
             System.out.println("   " + role);
-        }
     }
 }
 ```
@@ -41,13 +39,11 @@ public void onUsersUpdated(ServiceEndpointEvent e)
 {
     ServiceEndpoint serviceEndpoint = e.getEndpoint();
     MembershipUser[] users = serviceEndpoint.getUsers();
-    System.out.println(String.format("User list:"));
-    for(MembershipUser user: users)
-    {
+    System.out.println(String.format("User list:"));    
+    for(MembershipUser user: users) {
         System.out.println(user.getName());
-        for(String role: user.getRoles()) {
+        for(String role: user.getRoles()) 
             System.out.println("  " + role);
-        }
     }
 }
 ```

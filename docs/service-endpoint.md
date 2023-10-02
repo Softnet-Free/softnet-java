@@ -10,7 +10,7 @@ After you have defined the site structure, you can move on to designing the serv
 ```java
 public static ServiceEndpoint create(
     SiteStructure siteStructure, 
-    String serviceVersion, 
+    String version, 
     ServiceURI serviceURI, 
     String password) throws HostErrorSoftnetException
 ```
@@ -22,7 +22,7 @@ public static SiteStructure createStructure(
 ```
 This method takes the names of Service Type and Contract Author which together with high probability uniquely identify the service’s interface contract. Later, you’ll see how these names are also used in instantiating a client endpoint. But now we continue with the parameters of the <span class="method">create</span> method.  
 
-The second parameter, *serviceVersion*, is the version of the service’s interface contract. It's just a string representation of the version in the format you've chosen for your application. For example, you can use a &lt;Major&gt;.&lt;Minor&gt;.&lt;Patch&gt; format. Softnet does not interpret the version string in any way, but simply presents it to the client. Usually, the version changes with software update. It is quite possible that the site structure remains unchanged while the service version changes. This is why the version is not a part of the site structure and the method takes it as a separate parameter. If you are not using version control, you can specify null for this parameter.  
+The second parameter, *version*, is the version of the service’s primary API. It's just a string representation of the version in the format you've chosen for your application. For example, you can use a &lt;Major&gt;.&lt;Minor&gt;.&lt;Patch&gt; format. Softnet does not interpret the version string in any way, but simply presents it to the client. Usually, the version changes with software update. It is quite possible that the site structure remains unchanged while the API version changes. This is why the version is not a part of the site structure and the method takes it as a separate parameter. If you are not using version control, you can specify null for this parameter.  
 
 And we have the last two parameters – *serviceURI* and *password* – the account data that you will most likely prefer to store in the app configuration file. The service owner takes this data on the site management page in Softnet MS. The service URI, which is of the form 'softnet-srv://&lt;serviceUuid&gt;@&lt;serverAddress&gt;', is used to instantiate the <span class="datatype">ServiceURI</span> class. An application passes it as an argument to the <span class="method">create</span> method's third parameter.  
 

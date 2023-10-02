@@ -2,7 +2,7 @@
 layout: default_no_content
 title: 11.2.3. Hostname change event handler
 parent: 11.2. Implementing event handlers
-grand_parent: 11. Platform events related to services
+grand_parent: 11. Service-specific platform events
 nav_order: 3
 ---
 
@@ -22,8 +22,8 @@ The example below demonstrates these steps:
 ```java
 public void onHostnameChanged(ServiceEndpointEvent e)
 {
-    ServiceEndpoint serviceEndpoin = e.getEndpoint();
-    System.out.println(String.format("The updated service hostname: %s", serviceEndpoin.getHostname()));
+    ServiceEndpoint serviceEndpoint = e.getEndpoint();
+    System.out.println(String.format("The updated service hostname: %s", serviceEndpoint.getHostname()));
 }
 ```
 

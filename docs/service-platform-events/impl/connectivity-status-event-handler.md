@@ -2,7 +2,7 @@
 layout: default_no_content
 title: 11.2.1. Connectivity status event handler
 parent: 11.2. Implementing event handlers
-grand_parent: 11. Platform events related to services
+grand_parent: 11. Service-specific platform events
 nav_order: 1
 ---
 

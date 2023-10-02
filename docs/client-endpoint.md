@@ -76,7 +76,7 @@ The final fifth parameter, *clientDescription*, is optional. You can provide a s
 
 The length of *serviceType* and *contractAuthor* should be in the range [1, 256]. The length of *password* and *clientDescription* must not be greater than 256. The latter can be null. Both parameters are ignored for stateless clients.  
 
-Now let’s see what clients can do with the version of the service. The service app provides the version to the create method when it instantiates the <span class="datatype">ServiceEndpoint</span> class. On the client side, the service is represented by the <span class="datatype">RemoteService</span> object. The following is the <span class="datatype">RemoteService</span> interface definition:
+Now let’s see what clients can do with the API version of the service. The service app provides the version of the primary API to the <span class="method">create</span> method when it instantiates the <span class="datatype">ServiceEndpoint</span> class. On the client side, the service is represented by the <span class="datatype">RemoteService</span> object. The following is the <span class="datatype">RemoteService</span> interface definition:
 ```java
 public interface RemoteService
 {
@@ -87,5 +87,4 @@ public interface RemoteService
 	boolean isRemoved();
 }
 ```
-It has a method <span class="method">getVersion</span> that returns the same version string provided by the service. When the service gets online, Softnet notifies the client about it by raising an event with the <span class="datatype">RemoteService</span> object as an argument. For more information on this, see chapter "[Platform events related to clients]({{ site.baseurl }}{% link docs/client-platform-events/index.md %})". Before making a request to the service, the client can get the version string by calling <span class="method">getVersion</span>, parse it into the components, and check for version compatibility.
-
+It has a <span class="method">getVersion</span> method that returns the same version string provided by the service. When the service comes online, Softnet notifies clients by raising a <span class="datatype">ServiceOnline</span> event, which clients can handle by <span class="method">onServiceOnline</span>. This handler has a parameter 'e' of type <span class="datatype">RemoteServiceEvent</span>, which provides a <span class="datatype">RemoteService</span> object. For more information, see the chapter "[Client-specific platform events]({{ site.baseurl }}{% link docs/client-platform-events/index.md %})". Before making a request to the service, a client can get the version string, parse it into the components, and check for version compatibility.
