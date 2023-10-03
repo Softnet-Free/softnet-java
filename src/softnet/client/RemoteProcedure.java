@@ -57,5 +57,3 @@ public class RemoteProcedure
 	        throw new IllegalArgumentException(String.format("An illegal character in the name of procedure '%s'. Allowed characters: a-z A-Z 0-9 _.", name));			
 	}
 }
-
-// the rest of the members are omitted 

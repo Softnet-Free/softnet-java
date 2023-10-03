@@ -123,6 +123,9 @@ class RPCController
 		if(remoteProcedure == null)
 			throw new IllegalArgumentException("The argument 'remoteProcedure' is null."); 
 		
+		if(remoteProcedure.arguments.getSize() > 65535)
+			throw new IllegalArgumentException("The size of the data in the 'arguments' field exceeds 64 kilobytes."); 
+		
 		if(responseHandler == null)
 			throw new IllegalArgumentException("The argument 'responseHandler' is null."); 
 
@@ -174,6 +177,9 @@ class RPCController
 
 		if(remoteProcedure == null)
 			throw new IllegalArgumentException("The argument 'remoteProcedure' is null."); 
+		
+		if(remoteProcedure.arguments.getSize() > 65536)
+			throw new IllegalArgumentException("The size of the data in the 'arguments' field exceeds 64 kilobytes (65536 bytes)."); 
 		
 		if(responseHandler == null)
 			throw new IllegalArgumentException("The argument 'responseHandler' is null."); 

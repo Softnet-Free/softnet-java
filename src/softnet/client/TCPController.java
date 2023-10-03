@@ -286,7 +286,7 @@ class TCPController
 		if(request.socketChannel != null)
 			closeChannel(request.socketChannel);
 
-		request.responseHandler.onError(new ResponseContext(clientEndpoint, request.remoteService, request.attachment), new ConnectionAttemptFailedSoftnetException("The connection attempt timed out."));		
+		request.responseHandler.onError(new ResponseContext(clientEndpoint, request.remoteService, request.attachment), new TimeoutExpiredSoftnetException("The connection attempt timed out."));		
 	}
 	
 	private void processMessage_RzvData(byte[] message, Channel channel) throws AsnException, FormatException

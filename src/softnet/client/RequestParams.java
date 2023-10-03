@@ -59,8 +59,8 @@ public class RequestParams {
 		if(sessionTag == null)
 			return null;		
 		byte[] encoding = asnEncoder.getEncoding();
-		if(encoding.length > 64)
-			throw new IllegalArgumentException("The maximum data size in a session tag is limited to 64 bytes.");
+		if(encoding.length > 128)
+			throw new IllegalArgumentException("The maximum data size in a session tag is limited to 128 bytes.");
 		return encoding;
 	}
 }

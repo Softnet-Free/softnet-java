@@ -268,9 +268,13 @@ class RPCController
 					{
 						int errorCode = f_appProcedure.requestHandler.execute(new RequestContext(serviceEndpoint, user, clientId, f_sessionTag), f_arguments, result, error);
 						if(errorCode == 0) {
+							if(asnResultEncoder.getSize() > 65536)
+								throw new IllegalArgumentException("The size of the data in the 'result' parameter exceeds 64 kilobytes (65536 bytes)."); 								
 							channel.send(EncodeMessage_Result(transactionUid, userKind, clientId, asnResultEncoder));
 						}
 						else {
+							if(asnErrorEncoder.getSize() > 4096)
+								throw new IllegalArgumentException("The size of the data in the 'result' parameter exceeds 4 kilobytes (4096 bytes)."); 								
 							channel.send(EncodeMessage_AppError(transactionUid, userKind, clientId, errorCode, asnErrorEncoder));
 						}
 					}
@@ -278,9 +282,13 @@ class RPCController
 					{
 						int errorCode = f_appProcedure.requestHandler.execute(new RequestContext(serviceEndpoint, user, 0, f_sessionTag), f_arguments, result, error);
 						if(errorCode == 0) {
+							if(asnResultEncoder.getSize() > 65536)
+								throw new IllegalArgumentException("The size of the data in the 'result' parameter exceeds 64 kilobytes (65536 bytes)."); 								
 							channel.send(EncodeMessage_Result(transactionUid, userKind, clientId, asnResultEncoder));
 						}
 						else {
+							if(asnErrorEncoder.getSize() > 4096)
+								throw new IllegalArgumentException("The size of the data in the 'result' parameter exceeds 4 kilobytes (4096 bytes)."); 								
 							channel.send(EncodeMessage_AppError(transactionUid, userKind, clientId, errorCode, asnErrorEncoder));
 						}
 					}
