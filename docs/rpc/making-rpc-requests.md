@@ -32,7 +32,7 @@ public class RequestParams {
 ```
 *	<span class="field">attachment</span> contains any attached data you want to pass to the respone handler;
 *	<span class="field">waitSeconds</span> is the wait timeout after which the request method completes with an exception of type <span class="exception">TimeoutExpiredSoftnetException</span>. Its default value is zero, which sets the default timeout value to 30 seconds;
-*	<span class="field">sessionTag</span> is used to provide information about the session in the context of which the request will be made.  
+*	<span class="field">sessionTag</span> is used to provide information about the session in the context of which the request will be made. The data size is limited to 128 bytes.  
 
 <span class="datatype">RemoteProcedure</span> has an <span class="field">arguments</span> field where the client provides arguments to call the method. It is of type <span class="datatype">SequenceEncoder</span>, and the maximum data size is limited to 64 kilobytes. To learn the size of data in the <span class="field">arguments</span> field, you can call the <span class="method">getSize</span> method provided by <span class="datatype">SequenceEncoder</span>. 
 

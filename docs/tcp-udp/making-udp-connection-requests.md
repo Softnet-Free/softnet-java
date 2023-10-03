@@ -32,7 +32,7 @@ public class RequestParams {
 ```
 *	<span class="field">attachment</span> contains any attached data you want to pass to the respone handler;
 *	<span class="field">waitSeconds</span> is the wait timeout after which the request method completes with an exception of type <span class="exception">TimeoutExpiredSoftnetException</span>. Its default value is zero, which sets the default timeout value to 30 seconds;
-*	<span class="field">sessionTag</span> is used to provide information about the session in the context of which the request will be made.  
+*	<span class="field">sessionTag</span> is used to provide information about the session in the context of which the request will be made. The data size is limited to 128 bytes.  
 
 Next to consider is the <span class="datatype">UDPResponseHandler</span> interface:
 ```java
