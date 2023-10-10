@@ -1,12 +1,12 @@
 ---
 layout: default
-title: 2. The library setup
+title: 2. The endpoint library setup
 nav_order: 2
 ---
 
-## 2. The library setup
+## 2. The endpoint library setup
 
-Softnet Java Library is built on Java SE 1.7. To make use of Softnet, you have to configure your project to include library files "softnet.jar" and "asncodec.jar".  
+The Softnet Java library is built on Java SE 1.7. To make use of Softnet, you have to configure your project to include library files "softnet.jar" and "asncodec.jar".  
 
 In Eclipse IDE, open the dialog "Project => Properties => Java Build Path => Libraries", click the button "Add External JARs" and browse for the library files.  
 
