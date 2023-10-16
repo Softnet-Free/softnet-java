@@ -66,7 +66,7 @@ public class ResponseContext {
 *	<span class="field">remoteService</span> represents a remote service to which the request has been made;
 *	<span class="field">attachment</span> is state data provided to the <span class="method">udpConnect</span> call.  
 
-The <span class="method">onError</span> method of <span class="datatype">UDPResponseHandler</span> is invoked if the connection request fails. The second parameter of type <span class="exception">SoftnetException</span> specifies an error. Possible exceptions are listed below:
+The <span id="on-error" class="method">onError</span> method of <span class="datatype">UDPResponseHandler</span> is invoked if the connection request fails. The second parameter of type <span class="exception">SoftnetException</span> specifies an error. Possible exceptions are listed below:
 *	<span class="exception">ServiceOfflineSoftnetException</span> – the remote service is offline;
 *	<span class="exception">ConnectionAttemptFailedSoftnetException</span> – the connection attempt failed. The details are provided in the exception message;
 *	<span class="exception">AccessDeniedSoftnetException</span> – the client does not have enough permissions to establish this connection;
