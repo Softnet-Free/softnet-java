@@ -84,7 +84,7 @@ class MyTCPAcceptHandler implements TCPAcceptHandler {
 	public void accept(RequestContext context, SocketChannel socketChannel, ConnectionMode mode) {
 		context.serviceEndpoint.tcpAccept(10, new MyTCPAcceptHandler());
 		System.out.println(String.format(
-			"The TCP connection is established with user rights '%s'.
+			"The TCP connection is established for user '%s'.
  			The connection mode is '%s'.",
 			context.user.getName(),
 			mode));		

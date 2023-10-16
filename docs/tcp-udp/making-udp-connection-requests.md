@@ -53,7 +53,7 @@ The method <span class="method">onSuccess</span> is called if the request is suc
 *	<span class="param">remoteSocketAddress</span> is an IP address and port of the remote UDP endpoint;
 *	<span class="param">mode</span> provides the mode of the connection – P2P or Proxy.  
 
-The <span class="datatype">ResponseContext</span> class has the following fields:
+The <span id="response-context" class="datatype">ResponseContext</span> class has the following fields:
 ```java
 public class ResponseContext {
     public final ClientEndpoint clientEndpoint;
