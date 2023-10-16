@@ -48,7 +48,7 @@ The <span class="method">onSuccess</span> method is invoked if the request is su
 *	<span class="param">socketChannel</span> is a Java NIO SocketChannel object that represents the established TCP connection;
 *	<span class="param">mode</span> provides the mode of the connection – P2P or Proxy.  
 
-The <span class="datatype">ResponseContext</span> class has the following fields:
+The <span id="response-context" class="datatype">ResponseContext</span> class has the following fields:
 ```java
 public class ResponseContext {
     public final ClientEndpoint clientEndpoint;
