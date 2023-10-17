@@ -7,7 +7,7 @@ nav_order: 16
 
 ## 16. Remote Procedure Calls
 
-Most applications use application layer protocols based on TCP and UDP for client/server communication scenarios. However, some IoT tasks can be solved simply using a request-response pattern. In such cases, you can employ Softnet RPC instead of messing around with third party application layer protocols.  
+Most applications use application layer protocols based on TCP and UDP for client/server communication scenarios. However, some IoT tasks can be solved simply using a request-response pattern. In such cases, you can employ Softnet RPC instead of messing around with resource-intensive application layer protocols.  
 
 In Softnet, all messages are in ASN.1 DER format. Applications can also take advantages of using Softnet ASN.1 Codec. Clients can pass data organized in complex hierarchical structures to the remote procedure up to 64 kilobytes in size. The service, in turn, returns the result also in ASN.1 DER format and up to 64 kilobytes. There is always a chance that an RPC request may result in an error. The handler can return structured information about the error in ASN.1 format. You can learn the specification for the ASN.1 codec in «[The Developer Guide to Softnet ASN.1 Codec (Java)](https://softnet-free.github.io/asn1codec-java){:target="_blank"}{:rel="noopener noreferrer"}».  
 
