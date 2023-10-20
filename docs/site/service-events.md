@@ -46,13 +46,13 @@ void addQueueingEvent(String eventName, int lifetime, int maxQueueSize)
 ```
 The first parameter takes the event name. The second parameter takes the event lifetime in seconds. The third parameter takes the maximum queue size.  
 Parameters have the following restrictions: name length: [1, 256]; lifetime: [1 minute, 30 days]; maximum queue size: [1, 1000].  
-The other two overloads of the method have the fifth parameter, which is either a list of authorized roles or a guest denying level. For details, see the chapter "[Access rule definition technique]({{ site.baseurl }}{% link docs/access-rules.md %})".  
+The other two overloads of the method have the fourth parameter, which is either a list of authorized roles or a guest denying level. For details, see the chapter "[Access rule definition technique]({{ site.baseurl }}{% link docs/access-rules.md %})".  
 
 The example below defines a Queueing event with the following parameters: name: "CriticalPressure"; lifetime: 2 hours and 30 minutes; max queue size: 50. All users authorized.
 ```java
 siteStructure.addQueueingEvent("CriticalPressure", TimeSpan.fromHM(2,30), 50);
 ```
-To provide the life time in usual time units, the example uses the <span class="datatype">TimeSpan</span> convertor. It is described in [Annex 1]({{ site.baseurl }}{% link docs/annex-1.md %}) of this guide.  
+To provide the lifetime in usual time units, the example uses the <span class="datatype">TimeSpan</span> convertor. It is described in [Annex 1]({{ site.baseurl }}{% link docs/annex-1.md %}) of this guide.  
 
 **Private Events** are designed for sending notifications to particular clients. The mechanism is useful in implementing asynchronous interaction scheme. Imagine that a client sends a request to the service that may take an indefinitely long time to be processed. In that case, the service can complete the request-response session by informing the client that it will be notified when the result is ready. And when the result is ready, the service can send a Private event to the client containing either the result itself or the notification that the result is ready. Any client, except stateless, can subscribe to Private events, but each client receives only those events that were addressed to it.  
 
