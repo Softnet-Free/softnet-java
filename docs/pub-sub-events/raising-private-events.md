@@ -31,7 +31,6 @@ public class PrivateEvent {
     public final String name;
     public final long clientId;
     public final SequenceEncoder arguments;
-
     public PrivateEvent(String name, long clientId)
 }
 ```

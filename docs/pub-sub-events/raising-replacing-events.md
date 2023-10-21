@@ -30,7 +30,6 @@ public class ReplacingEvent {
     public final String name;
     public final SequenceEncoder arguments;		
     public final boolean isNull;
-
     public ReplacingEvent(String name)
 }
 ```

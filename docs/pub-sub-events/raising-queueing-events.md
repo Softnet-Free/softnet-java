@@ -28,7 +28,6 @@ The parameter is of type <span class="datatype">QueueingEvent</span> with the fo
 public class QueueingEvent {
     public final String name;
     public final SequenceEncoder arguments;			
-
     public QueueingEvent(String name)
 }
 ```
