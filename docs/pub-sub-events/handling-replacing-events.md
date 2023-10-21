@@ -7,7 +7,7 @@ nav_order: 8
 
 ## 17.8. Handling Replacing events
 
-The client application subscribes to a Replacing event by calling the following method of the <span class="datatype">ClientEndpoint</span> class:
+A client application subscribes to a Replacing event by calling the following method of the <span class="datatype">ClientEndpoint</span> class:
 ```java
 public void subscribeToREvent(String eventName, RemoteEventListener listener)
 ```
@@ -16,7 +16,7 @@ The method has two parameters:
 *	<span class="param">eventName</span> is the event name described in the previous section;
 *	<span class="param">listener</span> is an event listener of type <span class="datatype">RemoteEventListener</span>.  
 
-The application provides the event name and implementation of the <span class="datatype">RemoteEventListener</span> interface to the method call. The interface declares two methods to implement:
+An application provides the event name and implementation of the <span class="datatype">RemoteEventListener</span> interface to the method call. The interface declares two methods to implement:
 ```java
 public interface RemoteEventListener {
     void accept(ClientEndpoint clientEndpoint, RemoteEvent remoteEvent);

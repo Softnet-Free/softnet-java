@@ -9,7 +9,7 @@ nav_order: 10
 
 Handling Queueing events is almost identical to handling Replacing events. In this description, most things are repeated, and the differences are noted.  
 
-The client application subscribes to a Queueing event by calling the following method of the <span class="datatype">ClientEndpoint</span> class:
+A client application subscribes to a Queueing event by calling the following method of the <span class="datatype">ClientEndpoint</span> class:
 ```java
 public void subscribeToQEvent(String eventName, RemoteEventListener listener)
 ```
@@ -18,7 +18,7 @@ The difference from the subscription method of Replacing events is only in the n
 *	<span class="param">eventName</span> is the event name described in the previous section;
 *	<span class="param">listener</span> is an event listener of type <span class="datatype">RemoteEventListener</span>.  
 
-The application provides the event name and implementation of the <span class="datatype">RemoteEventListener</span> interface to the method call. The interface declares two methods to implement:
+An application provides the event name and implementation of the <span class="datatype">RemoteEventListener</span> interface to the method call. The interface declares two methods to implement:
 ```java
 public interface RemoteEventListener {
     void accept(ClientEndpoint clientEndpoint, RemoteEvent remoteEvent);

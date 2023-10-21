@@ -7,9 +7,9 @@ nav_order: 12
 
 ## 17.12. Handling Private events
 
-Handling Private events is almost identical to handling Replacing or Queueing events. In this description, most things are repeated, and the differences are noted.  
+Handling Private events is almost identical to handling Replacing or Queueing events. In this description, most things are repeated, and differences are noted separately.  
 
-The client application subscribes to a Private event by calling the following method of the <span class="datatype">ClientEndpoint</span> class:
+A client application subscribes to a Private event by calling the following method of the <span class="datatype">ClientEndpoint</span> class:
 ```java
 public void subscribeToPEvent(String eventName, RemoteEventListener listener)
 ```
