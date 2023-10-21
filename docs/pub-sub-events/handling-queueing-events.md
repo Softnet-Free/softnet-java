@@ -27,7 +27,7 @@ public interface RemoteEventListener {
 ```
 
 The first method, <span class="method">accept</span>, is an event handler. It is called by the endpoint when it receives an event. As with Replacing events, the endpoint receives the next event only after the current call to the handler has completed. The method has two parameters:
-*	<span class="param">clientEndpoint</span> is the endpoint that calls the handler;
+*	<span class="param">clientEndpoint</span> is the endpoint that called the handler;
 *	<span class="param">remoteEvent</span> of type <span class="datatype">RemoteEvent</span> is the received event.  
 
 The second method, <span class="method">acceptError</span>, is called in case of an error. Currently, the only possible error can be caused by subscribing to a non-existent event.
