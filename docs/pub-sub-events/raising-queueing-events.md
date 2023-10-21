@@ -28,16 +28,14 @@ The parameter is of type <span class="datatype">QueueingEvent</span> with the fo
 public class QueueingEvent {
     public final String name;
     public final SequenceEncoder arguments;			
-    
+
     public QueueingEvent(String name)
 }
 ```
 Here is a description of the <span class="datatype">QueueingEvent</span> members:
-*	<span class="field">uid</span> is the event ID used internally by the platform. However, if you want to provide it to subscribed clients, you can add it to the <span class="field">arguments</span> field of the class;
 *	<span class="field">name</span> is the name of the event, provided to the constructor when the class instance is created, and also specified in the event definition in the site structure;
 *	<span class="field">arguments</span> is a field of type <span class="datatype">SequenceEncoder</span> provided by Softnet ASN.1 Codec. Accordingly, on the client side, events have an arguments field of type <span class="datatype">SequenceDecoder</span>. The data size in arguments is limited to 2 kilobytes;
-*	<span class="method">getEncoding</span> is a method that returns an ASN.1 DER encoding of data provided to arguments.
-*	<span class="method">QueueingEvent</span> is a constructor that takes the name of the event;  
+*	<span class="method">QueueingEvent</span> is a constructor that takes the name of the event.  
 
 This section concludes with an example of defining and raising a Queueing event.
 1.	The following code defines "CriticalWaterTemperature" as a Queueing event using the second overload of the <span class="method">addQueueingEvent</span> method. It specifies the lifetime as 10 hours, the maximum queue size as 50, and the access rule denies guest clients:

@@ -30,7 +30,7 @@ public class ReplacingEvent {
     public final String name;
     public final SequenceEncoder arguments;		
     public final boolean isNull;
-    
+
     public ReplacingEvent(String name)
 }
 ```
@@ -43,12 +43,10 @@ public class ReplacingNullEvent extends ReplacingEvent {
 ```
 
 The next is a description of the <span class="datatype">ReplacingEvent</span> members:
-*	<span class="field">uid</span> is the event ID used internally by the platform. However, if you want to provide it to subscribed clients, you can add it to the arguments field of the class;
 *	<span class="field">name</span> is the name of the event, provided to the constructor when the class instance is created, and also specified in the event definition in the site structure;
 *	<span class="field">arguments</span> is a field of type <span class="datatype">SequenceEncoder</span> provided by Softnet ASN.1 Codec. The service can pass data organized in complex structures through this field to subscribers. Accordingly, on the client side, events have an arguments field of type <span class="datatype">SequenceDecoder</span>. The data size in arguments is limited to 2 kilobytes. Before raising an event, an application can check the size of data by calling the getSize method of <span class="datatype">SequenceEncoder</span>;
 *	<span class="field">isNull</span> indicates if the event is null-event. It is always false for <span class="datatype">ReplacingEvent</span> instances and true for <span class="datatype">ReplacingNullEvent</span> instances;
-*	<span class="method">ReplacingEvent</span> is a constructor that takes the name of the event;
-*	<span class="method">getEncoding</span> is a method that returns the ASN.1 DER encoding of data provided to arguments.  
+*	<span class="method">ReplacingEvent</span> is a constructor that takes the name of the event.  
 
 To create a null-event, your application calls the <span class="datatype">ReplacingNullEvent</span> constructor with the name of the Replacing event as an argument. The arguments field of this object is null, that is, the null-event cannot have arguments.  
 

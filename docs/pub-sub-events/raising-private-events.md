@@ -31,17 +31,15 @@ public class PrivateEvent {
     public final String name;
     public final long clientId;
     public final SequenceEncoder arguments;
-    	
+
     public PrivateEvent(String name, long clientId)
 }
 ```
 Here is a description of the <span class="datatype">PrivateEvent</span> members:
-*	<span class="field">uid</span> is the event ID used internally by the platform;
 *	<span class="field">name</span> is the name of the event, provided to the constructor when the class instance is created, and also specified in the event definition in the site structure;
 *	<span class="field">clientId</span> is the client ID taken from the client request earlier;
 *	<span class="field">arguments</span> is a field of type <span class="datatype">SequenceEncoder</span> provided by Softnet ASN.1 Codec. The data size in arguments is limited to 2 kilobytes;
-*	<span class="method">getEncoding</span> is a method that returns an ASN.1 DER encoding of data provided to arguments.
-*	<span class="method">PrivateEvent</span> is a constructor that takes the event name and the client ID;  
+*	<span class="method">PrivateEvent</span> is a constructor that takes the event name and the client ID.  
 
 Finally, we'll look at an example of defining and raising a Private event. Let's say we have a Softnet service "WaterTempController" that controls the temperature of the water in a boiler. We also have a Java class with the same name that implements the service. The service allows you to remotely set the water temperature. To do this, it implements an RPC procedure that accepts the target temperature. Since the temperature cannot be set immediately, the procedure starts the requested process, writes the current temperature to the result parameter and completes. When the target temperature is set, the controller raises a Private event to notify the client.  
 
