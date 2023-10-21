@@ -34,7 +34,6 @@ The second method, <span class="method">acceptError</span>, is called in case of
 The next is a description of the <span class="datatype">RemoteEvent</span> fields. In contrast to Replacing events, here the category field is set to Queueing and the <span class="field">isNull</span> field is not used:
 ```java
 public class RemoteEvent {
-    public final long instanceId;
     public final String name;
     public final EventCategory category;
     public final boolean isNull;
@@ -44,7 +43,6 @@ public class RemoteEvent {
     public final SequenceDecoder arguments;
 }
 ```
-*	<span class="field">instanceId</span> is the event ID used internally by the platform;
 *	<span class="field">name</span> is the event name specified in the event subscription;
 *	<span class="field">category</span> is of type <span class="datatype">EventCategory</span> enumeration. For Queueing events, it is set to Queueing;
 *	<span class="field">isNull</span> is not used;

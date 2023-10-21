@@ -32,7 +32,6 @@ The second method, <span class="method">acceptError</span>, is called in case of
 Let’s consider the <span class="datatype">RemoteEvent</span> type. Note that it is used to represent events from all three categories. It has the following read-only fields:
 ```java
 public class RemoteEvent {
-    public final long instanceId;
     public final String name;
     public final EventCategory category;
     public final boolean isNull;
@@ -42,7 +41,6 @@ public class RemoteEvent {
     public final SequenceDecoder arguments;
 }
 ```
-*	<span class="field">instanceId</span> is the event ID used internally by the platform;
 *	<span class="field">name</span> is the event name specified in the event subscription;
 *	<span class="field">category</span> is of type <span class="datatype">EventCategory</span> enumeration. For Replacing events, it is set to Replacing;
 *	<span class="field">isNull</span> is true for Replacing null-events, false otherwise;
