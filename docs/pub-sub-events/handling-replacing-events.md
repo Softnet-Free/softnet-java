@@ -38,7 +38,7 @@ public class RemoteEvent {
     public final boolean isNull;
     public final long serviceId;
     public final long age;
-    public final GregorianCalendar createdDate;
+    public final java.util.Date createdDate;
     public final SequenceDecoder arguments;
 }
 ```

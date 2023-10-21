@@ -28,12 +28,10 @@ public void raiseEvent(PrivateEvent event)
 The parameter is of type <span class="datatype">PrivateEvent</span> with the following members:
 ```java
 public class PrivateEvent {
-    public final UUID uid;
     public final String name;
     public final long clientId;
-    public final SequenceEncoder arguments;		
-	
-    public byte[] getEncoding()
+    public final SequenceEncoder arguments;
+    	
     public PrivateEvent(String name, long clientId)
 }
 ```

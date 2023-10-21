@@ -27,13 +27,11 @@ public void raiseEvent(ReplacingEvent event)
 The parameter is of type <span class="datatype">ReplacingEvent</span> with the following members:
 ```java
 public class ReplacingEvent {
-    public final UUID uid;
     public final String name;
     public final SequenceEncoder arguments;		
     public final boolean isNull;
-	
+    
     public ReplacingEvent(String name)
-    public byte[] getEncoding()
 }
 ```
 

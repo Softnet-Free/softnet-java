@@ -26,11 +26,9 @@ public void raiseEvent(QueueingEvent event)
 The parameter is of type <span class="datatype">QueueingEvent</span> with the following members:
 ```java
 public class QueueingEvent {
-    public final UUID uid;
     public final String name;
-    public final SequenceEncoder arguments;		
-	
-    public byte[] getEncoding()
+    public final SequenceEncoder arguments;			
+    
     public QueueingEvent(String name)
 }
 ```
