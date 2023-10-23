@@ -7,7 +7,8 @@ has_children: true
 
 ## 12. Client-specific platform events
 
-We continue discussing the platform events. This chapter is dedicated client-specific platform events.
+We continue discussing the platform events. This chapter is dedicated client-specific platform events.  
+
 ---
 #### TABLE OF CONTENTS
 * [12.1. Interface ClientEventListener]({{ site.baseurl }}{% link docs/client-platform-events/interface-client-event-listener.md %})
