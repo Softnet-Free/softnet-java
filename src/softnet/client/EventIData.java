@@ -16,8 +16,6 @@
 
 package softnet.client;
 
-import java.util.GregorianCalendar;
-
 class EventIData
 {
 	public long eventId;
@@ -28,6 +26,6 @@ class EventIData
 	public long instanceId;
 	public long serviceId;
 	public long age;
-	public GregorianCalendar createdDate;
+	public java.util.Date createdDate;
 	public byte[] argumentsEncoding = null;
 }

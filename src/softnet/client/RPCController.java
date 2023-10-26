@@ -77,11 +77,9 @@ class RPCController
 			request.timeoutControlTask.cancel();
 			
 			final RpcRequest f_request = request;				
-			Runnable runnable = new Runnable()
-			{
+			Runnable runnable = new Runnable() {
 				@Override
-				public void run()
-				{
+				public void run() {
 					f_request.responseHandler.onError(new ResponseContext(clientEndpoint, f_request.remoteService, f_request.attachment), new ClientOfflineSoftnetException());
 				}
 			};
@@ -101,11 +99,9 @@ class RPCController
 				{				
 					requestList.remove(i);
 					final RpcRequest f_request = request; 
-					Runnable runnable = new Runnable()
-					{
+					Runnable runnable = new Runnable() {
 						@Override
-						public void run()
-						{
+						public void run() {
 							f_request.responseHandler.onError(new ResponseContext(clientEndpoint, f_request.remoteService, f_request.attachment), new ServiceOfflineSoftnetException());
 						}
 					};
@@ -124,7 +120,7 @@ class RPCController
 			throw new IllegalArgumentException("The argument 'remoteProcedure' is null."); 
 		
 		if(remoteProcedure.arguments.getSize() > 65535)
-			throw new IllegalArgumentException("The size of the data in the 'arguments' field exceeds 64 kilobytes."); 
+			throw new IllegalArgumentException("The size of data in the 'remoteProcedure.arguments' field exceeds 64 kilobytes (65536 bytes)."); 
 		
 		if(responseHandler == null)
 			throw new IllegalArgumentException("The argument 'responseHandler' is null."); 
@@ -148,8 +144,7 @@ class RPCController
 			request.remoteService = remoteService;
 			request.procedureName = remoteProcedure.name;
 			request.responseHandler = responseHandler;			
-			Acceptor<Object> acceptor = new Acceptor<Object>()
-			{
+			Acceptor<Object> acceptor = new Acceptor<Object>() {
 				public void accept(Object state) { onRequestTimeoutExpired(state); }
 			};
 			request.timeoutControlTask = new ScheduledTask(acceptor, request);
@@ -164,8 +159,7 @@ class RPCController
 			
 			scheduler.add(request.timeoutControlTask, Constants.RpcWaitSeconds);
 		}
-		catch(SoftnetException ex)
-		{
+		catch(SoftnetException ex) {
 			responseHandler.onError(new ResponseContext(clientEndpoint, remoteService, null), ex);
 		}
 	}
@@ -179,7 +173,7 @@ class RPCController
 			throw new IllegalArgumentException("The argument 'remoteProcedure' is null."); 
 		
 		if(remoteProcedure.arguments.getSize() > 65536)
-			throw new IllegalArgumentException("The size of the data in the 'arguments' field exceeds 64 kilobytes (65536 bytes)."); 
+			throw new IllegalArgumentException("The size of data in the 'remoteProcedure.arguments' field exceeds 64 kilobytes (65536 bytes)."); 
 		
 		if(responseHandler == null)
 			throw new IllegalArgumentException("The argument 'responseHandler' is null."); 
@@ -209,8 +203,7 @@ class RPCController
 			request.procedureName = remoteProcedure.name;
 			request.responseHandler = responseHandler;
 			request.attachment = requestParams.attachment;
-			Acceptor<Object> acceptor = new Acceptor<Object>()
-			{
+			Acceptor<Object> acceptor = new Acceptor<Object>() {
 				public void accept(Object state) { onRequestTimeoutExpired(state); }
 			};
 			request.timeoutControlTask = new ScheduledTask(acceptor, request);
@@ -225,8 +218,7 @@ class RPCController
 			
 			scheduler.add(request.timeoutControlTask, requestParams.waitSeconds > 0 ? requestParams.waitSeconds : Constants.RpcWaitSeconds);
 		}
-		catch(SoftnetException ex)
-		{
+		catch(SoftnetException ex) {
 			responseHandler.onError(new ResponseContext(clientEndpoint, remoteService, requestParams.attachment), ex);
 		}
 	}
@@ -257,18 +249,15 @@ class RPCController
 			request = removeRequest(transactionUid);
 		}
 		
-		if(request != null)
-		{
+		if(request != null) {
 			if(request.timeoutControlTask.cancel() == false)
 				return;
 			
 			final RpcRequest f_request = request;
 			final SequenceDecoder asnResult = ASNDecoder.Sequence(resultEncoding);
-			Runnable runnable = new Runnable()
-			{
+			Runnable runnable = new Runnable() {
 				@Override
-				public void run()
-				{
+				public void run() {
 					f_request.responseHandler.onSuccess(new ResponseContext(clientEndpoint, f_request.remoteService, f_request.attachment), asnResult);
 				}
 			};
@@ -291,18 +280,15 @@ class RPCController
 			request = removeRequest(transactionUid);			
 		}
 		
-		if(request != null)
-		{
+		if(request != null) {
 			if(request.timeoutControlTask.cancel() == false)
 				return;
 			
 			final SoftnetException exception = resolveError(request, errorCode);
 			final RpcRequest f_request = request;
-			Runnable runnable = new Runnable()
-			{
+			Runnable runnable = new Runnable() {
 				@Override
-				public void run()
-				{
+				public void run() {
 					f_request.responseHandler.onError(new ResponseContext(clientEndpoint, f_request.remoteService, f_request.attachment), exception);
 				}
 			};

@@ -19,23 +19,12 @@ package softnet.service;
 import java.util.UUID;
 import softnet.asn.*;
 
-public class ReplacingEvent
-{
-	public final UUID uid;
+public class ReplacingEvent {
 	public final String name;
 	public final SequenceEncoder arguments;		
 	public final boolean isNull;
 
-	private ASNEncoder asnEncoder;	
-	public byte[] getEncoding()
-	{
-		if(arguments != null && arguments.count() > 0)
-			return asnEncoder.getEncoding(); 
-		return null;
-	}
-
-	public ReplacingEvent(String name)
-	{
+	public ReplacingEvent(String name) {
 		this.name = name;
 		uid = UUID.randomUUID();
 		asnEncoder = new ASNEncoder();
@@ -43,8 +32,16 @@ public class ReplacingEvent
 		isNull = false;
 	}
 
-	protected ReplacingEvent(String name, boolean isNull)
-	{
+	public final UUID uid;
+
+	private ASNEncoder asnEncoder;	
+	public byte[] getEncoding() {
+		if(arguments != null && arguments.count() > 0)
+			return asnEncoder.getEncoding(); 
+		return null;
+	}
+
+	protected ReplacingEvent(String name, boolean isNull) {
 		this.name = name;
 		uid = UUID.randomUUID();
 		if(isNull) {

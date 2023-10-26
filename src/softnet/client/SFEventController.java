@@ -418,7 +418,7 @@ class SFEventController implements EventController
 		eventIData.instanceId = sequenceDecoder.Int64();
 		eventIData.serviceId = sequenceDecoder.Int64();
 		eventIData.age = sequenceDecoder.Int64();
-		eventIData.createdDate = sequenceDecoder.GndTimeToGC();
+		eventIData.createdDate = sequenceDecoder.GndTimeToDate();
 		if(sequenceDecoder.exists(1))
 			eventIData.argumentsEncoding = sequenceDecoder.OctetString(2, 4096);
 				
@@ -463,7 +463,7 @@ class SFEventController implements EventController
 		eventIData.instanceId = sequenceDecoder.Int64();
 		eventIData.serviceId = sequenceDecoder.Int64();
 		eventIData.age = sequenceDecoder.Int64();
-		eventIData.createdDate = sequenceDecoder.GndTimeToGC();		
+		eventIData.createdDate = sequenceDecoder.GndTimeToDate();		
 
 		for(Subscription subscription: subscriptions)
 		{
@@ -505,7 +505,7 @@ class SFEventController implements EventController
 		eventIData.instanceId = sequenceDecoder.Int64();
 		eventIData.serviceId = sequenceDecoder.Int64();
 		eventIData.age = sequenceDecoder.Int64();
-		eventIData.createdDate = sequenceDecoder.GndTimeToGC();
+		eventIData.createdDate = sequenceDecoder.GndTimeToDate();
 		if(sequenceDecoder.exists(1))
 			eventIData.argumentsEncoding = sequenceDecoder.OctetString(2, 4096);
 		
@@ -549,7 +549,7 @@ class SFEventController implements EventController
 		eventIData.instanceId = sequenceDecoder.Int64();
 		eventIData.serviceId = sequenceDecoder.Int64();
 		eventIData.age = sequenceDecoder.Int64();
-		eventIData.createdDate = sequenceDecoder.GndTimeToGC();
+		eventIData.createdDate = sequenceDecoder.GndTimeToDate();
 		if(sequenceDecoder.exists(1))
 			eventIData.argumentsEncoding = sequenceDecoder.OctetString(2, 4096);				
 		
