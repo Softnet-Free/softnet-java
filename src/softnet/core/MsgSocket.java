@@ -100,7 +100,7 @@ public class MsgSocket
 		            return;
 		        }
 				
-				m_buffer.flip();
+				((java.nio.Buffer)m_buffer).flip();
 				
 				while (isClosed == false)
 	            {
@@ -140,7 +140,7 @@ public class MsgSocket
 	                    if(messageLength == m_buffer.remaining())
 	            		{
 	            			m_buffer.get(m_message);
-	            			m_buffer.clear();
+	            			((java.nio.Buffer)m_buffer).clear();
 	            			
 	            			messageReceivedHandler.accept(m_message);
 	            			m_message = null;
@@ -157,7 +157,7 @@ public class MsgSocket
 	            		{
 	            			messageBytesReceived = m_buffer.remaining();
 	            			m_buffer.get(m_message, 0, messageBytesReceived);                    			
-	            			m_buffer.clear();
+	            			((java.nio.Buffer)m_buffer).clear();
 	            			
 	            			isReadingAtMessageOrigin = false;
 	            			break;
@@ -169,7 +169,7 @@ public class MsgSocket
 	                	if(messageBytesRequired == m_buffer.remaining())
 	                	{
 	                		m_buffer.get(m_message, messageBytesReceived, messageBytesRequired);                    			
-	                		m_buffer.clear();
+	                		((java.nio.Buffer)m_buffer).clear();
 	            			
 	                		messageReceivedHandler.accept(m_message);
 	            			m_message = null;
@@ -181,7 +181,7 @@ public class MsgSocket
 	                	{
 	                		int bytesReceived = m_buffer.remaining();                		
 	            			m_buffer.get(m_message, messageBytesReceived, bytesReceived);            
-	            			m_buffer.clear();
+	            			((java.nio.Buffer)m_buffer).clear();
 	            			
 	                		messageBytesReceived = messageBytesReceived + bytesReceived;
 	                		break;

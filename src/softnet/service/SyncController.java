@@ -22,7 +22,7 @@ import softnet.core.MsgAcceptor;
 import softnet.exceptions.FormatException;
 import softnet.exceptions.SoftnetException;
 
-public class SyncController
+class SyncController
 {
 	public Runnable hostnameChangedCallback;
 	

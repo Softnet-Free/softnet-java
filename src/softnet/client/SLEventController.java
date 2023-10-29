@@ -24,7 +24,7 @@ import softnet.asn.*;
 import softnet.core.*;
 import softnet.exceptions.*;
 
-public class SLEventController implements EventController
+class SLEventController implements EventController
 {
 	public SLEventController(ClientEndpoint clientEndpoint, ClientURI clientURI)
 	{

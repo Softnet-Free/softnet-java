@@ -26,7 +26,7 @@ class ServiceMemoryPersistence implements ServicePersistence
 {
 	public ServiceMemoryPersistence(long storageCapacity)
 	{
-		this.storageCapacity = storageCapacity;
+		//this.storageCapacity = storageCapacity;
 		storageUid = UUID.randomUUID();
 		storageMode = false;
 		sepEvents = new LinkedList<ServiceEventPersistable>();
@@ -39,7 +39,7 @@ class ServiceMemoryPersistence implements ServicePersistence
 	private Object mutex = new Object();
 	private UUID storageUid;
 	private boolean storageMode;
-	private long storageCapacity;
+	//private long storageCapacity;
 	private LinkedList<ServiceEventPersistable> sepEvents;
 	private LinkedList<REvent> replacingEvents;
 	private LinkedList<QEvent> queueingEvents;

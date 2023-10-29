@@ -223,7 +223,7 @@ class UDPConnectorV6 implements UDPConnector, STaskContext
 			while(connectorState !=  ConnectorState.COMPLETED)
 			{			
 				try {
-					packet.setLength(18);
+					packet.setData(data);
 					dgmSocket.receive(packet);
 					
 					if(packet.getLength() == 17)

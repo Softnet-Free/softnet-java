@@ -811,9 +811,8 @@ class RBMembership implements Membership
         @Override
         public int hashCode() 
         {
-            return Long.hashCode(this.userId);
+            return (int)(this.userId ^ (this.userId>>>32));
         }
-	    //--------------------------------
 	            
         public void setName(String name)
         {

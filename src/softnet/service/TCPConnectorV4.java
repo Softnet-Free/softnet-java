@@ -32,7 +32,7 @@ import softnet.core.*;
 import softnet.exceptions.*;
 import softnet.utils.ByteConverter;
 
-public class TCPConnectorV4 implements TCPConnector
+class TCPConnectorV4 implements TCPConnector
 {
 	private UUID connectionUid;
 	private InetAddress serverIP;

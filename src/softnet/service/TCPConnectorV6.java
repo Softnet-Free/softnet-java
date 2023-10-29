@@ -32,7 +32,7 @@ import softnet.core.*;
 import softnet.exceptions.*;
 import softnet.utils.*;
 
-public class TCPConnectorV6 implements TCPConnector
+class TCPConnectorV6 implements TCPConnector
 {
 	private UUID connectionUid;
 	private InetAddress serverIP;

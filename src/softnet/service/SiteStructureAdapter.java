@@ -459,7 +459,7 @@ class SiteStructureAdapter implements SiteStructure
     	return false;
     }
     
-    public class REvent implements Comparable<REvent> 
+    class REvent implements Comparable<REvent> 
     {
     	public final String name;
     	public final GuestAccess guestAccess;
@@ -503,7 +503,7 @@ class SiteStructureAdapter implements SiteStructure
     	}
     }
     
-    public class QEvent implements Comparable<QEvent> 
+    class QEvent implements Comparable<QEvent> 
     {
     	public final String name;
     	public final int lifeTime;
@@ -555,7 +555,7 @@ class SiteStructureAdapter implements SiteStructure
     	}
     }
 
-    public class PEvent implements Comparable<PEvent>
+    class PEvent implements Comparable<PEvent>
     {
     	public String name;
     	public int lifeTime;

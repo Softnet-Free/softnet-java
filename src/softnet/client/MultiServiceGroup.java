@@ -566,7 +566,7 @@ class MultiServiceGroup implements ServiceGroup
         @Override
         public int hashCode() 
         {
-            return Long.hashCode(this.serviceId);
+            return (int)(this.serviceId ^ (this.serviceId>>>32));
         }
 	}	
 }

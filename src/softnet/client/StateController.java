@@ -20,7 +20,7 @@ import softnet.asn.*;
 import softnet.core.*;
 import softnet.exceptions.*;
 
-public class StateController 
+class StateController 
 {
 	public StateController(EndpointConnector endpointConnector, Object endpoint_mutex)
 	{
